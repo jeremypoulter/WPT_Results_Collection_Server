@@ -1,7 +1,7 @@
 <?php
 error_reporting(E_ALL);
 
-header("Access-Control-Allow-Origin: web-platform.test");
+header("Access-Control-Allow-Origin: *");
 
 $data = "no data";
 
