@@ -14,8 +14,10 @@
 
     var uploadData = function ()
     {
-      ajax("http://web-platform.test/upload/upload.php",
-           function (r) { return true; },
+      ajax("upload.php",
+           function (r) { 
+             return true; 
+           },
            "file="+file+"&log="+data);
 
       var d = document.getElementById("uploadLink");
