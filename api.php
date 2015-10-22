@@ -73,15 +73,25 @@ $app->group('/results', function() use ($app)
             {
                 if(is_numeric($file)) 
                 {
-                    array_push($sessions, array(
+                    $session = new Session($file);
+                    $sessionInfo = array(
                         'rel' => 'session', 
                         'id' => $file, 
-                        'href' => $app->urlFor('results', array('id' => $file))
-                    ));
+                        'href' => $app->urlFor('results', array('id' => $file)),
+                        'name' => $session->getName(),
+                        'count' => $session->getCount(),
+                        'created' => $session->getCreatedTime(),
+                        'modified' => $session->getModifiedTime()
+                    );
+                    array_push($sessions, $sessionInfo);
                 }
             }
             closedir($dh);
         }
+
+        usort($sessions, function ($a, $b) {
+            return $a['id'] - $b['id'];
+        });
 
         $app->render(200, array(
             'sessions' => $sessions

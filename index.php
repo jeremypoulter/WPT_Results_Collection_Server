@@ -44,7 +44,7 @@ $results_endpoints = $http."://".$server.$port.$path;
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
+                <li data-bind="css: { active: isHome }"><a href="#home">Home</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test Runner</a>
                     <ul class="dropdown-menu">
@@ -52,20 +52,89 @@ $results_endpoints = $http."://".$server.$port.$path;
                         <li><a href="<?= $wpt_base ?>/tools/runner/index.html?results_endpoint=<?= urlencode($results_endpoints) ?>" target="_blank">Full</a></li>
                     </ul>
                 </li>
-                <li><a href="#results">Results</a></li>
-                <li><a href="#about">About</a></li>
+                <li data-bind="css: { active: isResults }"><a href="#results">Results</a></li>
+                <li data-bind="css: { active: isAbout }"><a href="#about">About</a></li>
             </ul>
-        </div><!--/.nav-collapse -->
+        </div>
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container tab-content">
+        <div class="starter-template" data-bind="visible: isHome">
+            <h1>DLNA HTML5 Test Tools</h1>
+            <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
+        </div>
 
-      <div class="starter-template">
-        <h1>DLNA HTML5 Test Tools</h1>
-        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
-      </div>
+        <div data-bind="visible: isResults">
+            <div data-bind="visible: false === session()">
+                <table class="sessions">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Count</th>
+                            <th>Created</th>
+                            <th>Modified</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: sessionList">
+                        <tr data-bind="click: $root.goToSession">
+                            <td data-bind="text: id"></td>
+                            <td data-bind="text: name() ? name : ''"></td>
+                            <td data-bind="text: count"></td>
+                            <td data-bind="text: new Date($data.created() * 1000)"></td>
+                            <td data-bind="text: new Date($data.modified() * 1000)"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
+            <div data-bind="visible: session">
+                <p>Session: <span data-bind="text: session" /></p>
+
+                <table class='table resultsSummary'>
+                    <thead>
+                        <tr>
+                            <th>Passed</th>
+                            <th>Failed</th>
+                            <th>Timeouts</th>
+                            <th>Errors</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="pass" data-bind="text: totalPass"></td>
+                            <td class="fail" data-bind="text: totalFail"></td>
+                            <td class="timeout" data-bind="text: totalTimeout"></td>
+                            <td class="error" data-bind="text: totalError"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <table class="results">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Status</th>
+                            <th>Message</th>
+                            <th>Subtest Pass Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: results">
+                        <tr data-bind="css: resultClasses">
+                            <td data-bind="text: test.url"></td>
+                            <td data-bind="text: result"></td>
+                            <td data-bind="text: message"></td>
+                            <td><span data-bind="text: subPass"></span>/<span data-bind="text: subCount"></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <div data-bind="visible: isAbout">
+        </div>
     </div><!-- /.container -->
 
 
@@ -74,5 +143,9 @@ $results_endpoints = $http."://".$server.$port.$path;
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery-1.9.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/knockout-3.3.0.js"></script>
+    <script src="js/knockout.mapping-latest.js"></script>
+    <script src="js/sammy-latest.min.js"></script>
+    <script src="js/test_tool_manager.js"></script>
   </body>
 </html>

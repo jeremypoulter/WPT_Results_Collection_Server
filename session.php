@@ -33,11 +33,16 @@ class Session
                 if(is_numeric($file)) 
                 {
                     $result = json_decode(file_get_contents($this->dir.'/'.$file), true);
+                    $result['id'] = $file;
                     array_push($results, $result);
                 }
             }
             closedir($dh);
         }
+
+        usort($results, function ($a, $b) {
+            return $a['id'] - $b['id'];
+        });
 
         return array('results' => $results);
     }
@@ -59,7 +64,39 @@ class Session
         $this->unlock();
 
         file_put_contents($this->dir.'/'.$index, json_encode($result));
+    }
 
+    public function getName() 
+    {
+        $this->loadState();
+        return array_key_exists('name', $this->status) ? $this->status['name'] : false;
+    }
+
+    public function setName($newName) 
+    {
+        $this->lock();
+        $this->loadState();
+        if($newName != $this->status['name']) {
+            $this->status['name'] = $newName;
+            $this->saveState();
+        }
+        $this->unlock();
+    }
+
+    public function getCount() 
+    {
+        $this->loadState();
+        return $this->status['count'];
+    }
+
+    public function getCreatedTime()
+    {
+        return filectime($this->dir.'/status');
+    }
+
+    public function getModifiedTime()
+    {
+        return filemtime($this->dir.'/status');
     }
 
     private function loadState()

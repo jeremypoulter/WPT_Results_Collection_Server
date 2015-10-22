@@ -1,7 +1,38 @@
 body {
   padding-top: 50px;
 }
+
 .starter-template {
   padding: 40px 15px;
   text-align: center;
 }
+
+.sessions { width: 100%; table-layout:fixed; border-spacing: 0; }
+.sessions thead { background-color: #bbb; font-weight: bold; color: #444; text-shadow: #f7f7f7 0 1px 1px; }
+.sessions tbody tr:hover { cursor: pointer; background-color: #68c !important; color: White; }
+.sessions th, .sessions td { text-align:left; padding: 0.4em 0.3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sessions th { border-left: 1px solid #ddd; border-right: 1px solid #888; padding: 0.4em 0 0.3em 0.7em; }    
+.sessions th:nth-child(1), .sessions td:nth-child(1) { width: 5%; }
+.sessions th:nth-child(2), .sessions td:nth-child(2) { width: 40%; }
+.sessions th:nth-child(3), .sessions td:nth-child(3) { width: 5%; }
+.sessions th:nth-child(4), .sessions td:nth-child(4) { width: 25%; }
+.sessions th:nth-child(5), .sessions td:nth-child(5) { width: 25%; }
+.sessions th:last-child { border-right: none }
+.sessions tr:nth-child(even) { background-color: #EEE; }
+
+
+.results { width: 100%; table-layout:fixed; border-spacing: 0; }
+.results thead { background-color: #bbb; font-weight: bold; color: #444; text-shadow: #f7f7f7 0 1px 1px; }
+.results tbody tr:hover { cursor: pointer; background-color: #68c !important; color: White; }
+.results th, .results td { text-align:left; padding: 0.4em 0.3em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.results th { border-left: 1px solid #ddd; border-right: 1px solid #888; padding: 0.4em 0 0.3em 0.7em; }    
+.results th:nth-child(1), .results td:nth-child(1) { width: 50%; }
+.results th:nth-child(2), .results td:nth-child(2) { width: 10%; }
+.results th:nth-child(3), .results td:nth-child(3) { width: 30%; }
+.results th:nth-child(4), .results td:nth-child(4) { width: 10%; }
+.results th:last-child { border-right: none }
+.results tr:nth-child(even) { background-color: #EEE; }
+.results tr.pass td:nth-child(2), td.pass { color:  #48cfad; }
+.results tr.fail td:nth-child(2), td.fail { color:  #ed5565; }
+.results tr.timeout td:nth-child(2), td.timeout { color:  #f6bb42; }
+.results tr.error td:nth-child(2), td.error { color:  #da4453; font-weight: bold; }
