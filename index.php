@@ -48,8 +48,8 @@ $results_endpoints = $http."://".$server.$port.$path;
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test Runner</a>
                     <ul class="dropdown-menu">
-                        <li><a href="<?= $wpt_base ?>/tools/runner/tests.html?results_endpoint=<?= urlencode($results_endpoints) ?>" target="_blank">Simple</a></li>
-                        <li><a href="<?= $wpt_base ?>/tools/runner/index.html?results_endpoint=<?= urlencode($results_endpoints) ?>" target="_blank">Full</a></li>
+                        <li><a href="<?= $wpt_base ?>/tools/runner/tests.html" target="_blank">Simple</a></li>
+                        <li><a href="<?= $wpt_base ?>/tools/runner/index.html" target="_blank">Full</a></li>
                     </ul>
                 </li>
                 <li data-bind="css: { active: isResults }"><a href="#results">Results</a></li>
@@ -95,6 +95,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                 <table class='table resultsSummary'>
                     <thead>
                         <tr>
+                            <th></th>
                             <th>Passed</th>
                             <th>Failed</th>
                             <th>Timeouts</th>
@@ -103,10 +104,18 @@ $results_endpoints = $http."://".$server.$port.$path;
                     </thead>
                     <tbody>
                         <tr>
+                            <td></td>
                             <td class="pass" data-bind="text: totalPass"></td>
                             <td class="fail" data-bind="text: totalFail"></td>
                             <td class="timeout" data-bind="text: totalTimeout"></td>
                             <td class="error" data-bind="text: totalError"></td>
+                        </tr>
+                        <tr>
+                            <td><label>Display:</label></td>
+                            <td><input type="checkbox" data-bind="checked: showPass" value="PASS" /></td>
+                            <td><input type="checkbox" data-bind="checked: showFail" value="FAIL" /></td>
+                            <td><input type="checkbox" data-bind="checked: showTimeout" value="TIMEOUT" /></td>
+                            <td><input type="checkbox" data-bind="checked: showError" value="ERROR" /></td>
                         </tr>
                     </tbody>
                 </table>
@@ -120,7 +129,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                             <th>Subtest Pass Rate</th>
                         </tr>
                     </thead>
-                    <tbody data-bind="foreach: results">
+                    <tbody data-bind="foreach: filteredResults">
                         <tr data-bind="css: resultClasses">
                             <td data-bind="text: test.url"></td>
                             <td data-bind="text: result"></td>

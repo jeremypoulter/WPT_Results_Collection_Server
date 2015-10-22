@@ -10,7 +10,7 @@ function TestResultsViewModel(data)
     var self = this;
     ko.mapping.fromJS(data, {}, self);
 
-    // Deviced values
+    // Derived values
     self.result = ko.pureComputed(function () {
         switch (self.status())
         {
@@ -85,6 +85,11 @@ function HtmlTestToolViewModel()
     self.sessionListValid = ko.observable(false);
     self.results = ko.mapping.fromJS([], resultsMapping);
 
+    self.showPass = ko.observable(true);
+    self.showFail = ko.observable(true);
+    self.showTimeout = ko.observable(true);
+    self.showError = ko.observable(true);
+
     self.endpoints = [];
 
     // Derived data
@@ -97,7 +102,6 @@ function HtmlTestToolViewModel()
     self.isAbout = ko.pureComputed(function () {
         return this.tab() == 'about';
     }, this);
-
 
     self.subtestsCount = function (fn) {
         var count = 0;
@@ -123,6 +127,23 @@ function HtmlTestToolViewModel()
     }, this);
     self.totalCount = ko.pureComputed(function () {
         return self.subtestsCount(function (sub) { return sub.subCount(); });
+    }, this);
+
+    self.filters = ko.computed(function ()
+    {
+        var filters = [];
+        if (self.showPass()) { filters.push("PASS") }
+        if (self.showFail()) { filters.push("FAIL") }
+        if (self.showTimeout()) { filters.push("TIMEOUT") }
+        if (self.showError()) { filters.push("ERROR") }
+        return filters;
+    });
+    self.filteredResults = ko.computed(function ()
+    {
+        var filters = self.filters();
+        return ko.utils.arrayFilter(self.results(), function (result) {
+            return -1 != filters.indexOf(result.result());
+        });
     }, this);
 
     // Behaviours
