@@ -14,16 +14,6 @@ class Session
 
         $this->id = $id;
         $this->dir = SESSION_DIR.'/'.$id;
-        if(!is_dir($this->dir)) {
-            mkdir($this->dir);
-        }
-        if(!is_file($this->dir.'/status')) 
-        {
-            $this->status = array(
-                'count' => 0
-            );
-            $this->saveState();
-        }
     }
 
     public function getResults()
@@ -140,6 +130,24 @@ class Session
         }
 
         return false;
+    }
+
+    public static function createSession($id)
+    {
+        if(!is_numeric($id)) {
+            throw new Exception('Not a valid session ID');
+        }
+        if(Session::isValidSession($id)) {
+            throw new Exception('Session already exists');
+        }
+
+        $dir = SESSION_DIR.'/'.$id;
+        mkdir($dir);
+        file_put_contents($dir.'/status', json_encode(array(
+            'count' => 0
+        )));
+
+        return new Session($id);
     }
 
     private function loadState()

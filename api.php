@@ -49,10 +49,11 @@ $app->add(new \JsonApiMiddleware());
 
 $app->group('/results', function() use ($app) 
 {
-    $app->post('/', function () use ($app)  {
+    $app->post('/', function () use ($app)  
+    {
         global $status, $statusModified;
         // Create a new session
-        $session = new Session($status['count']);
+        $session = Session::createSession($status['count']);
         $status['count']++;
         $statusModified = true;
         $app->render(200,array(
