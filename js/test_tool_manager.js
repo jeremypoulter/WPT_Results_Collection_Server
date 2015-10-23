@@ -3,6 +3,7 @@
 /// <reference path="knockout-3.3.0.debug.js" />
 /// <reference path="knockout.mapping-latest.debug.js" />
 /// <reference path="sammy.js" />
+/// <reference path="modal.js" />
 
 function TestResultsViewModel(data)
 {
@@ -11,7 +12,8 @@ function TestResultsViewModel(data)
     ko.mapping.fromJS(data, {}, self);
 
     // Derived values
-    self.result = ko.pureComputed(function () {
+    self.result = ko.pureComputed(function ()
+    {
         switch (self.status())
         {
             case "OK":
@@ -63,15 +65,40 @@ function TestResultsViewModel(data)
     }, this);
 }
 
+function DeleteSessionViewModel(session)
+{
+    // Data
+    var self = this;
+    
+    self.session = session;
+    self.template = "DeleteSession";
+
+    self.complete = function ()
+    {
+        this.modal.close(true);
+    };
+
+    self.cancel = function ()
+    {
+        // Close the modal without passing any result data.
+        this.modal.close();
+    };
+}
+
 function HtmlTestToolViewModel()
 {
-    var sessionListMapping = {
+    var sessionListMapping =
+    {
         key: function(data) {
             return ko.utils.unwrapObservable(data.id);
         }
     };
 
-    var resultsMapping = {
+    var resultsMapping =
+    {
+        key: function(data) {
+            return ko.utils.unwrapObservable(data.id);
+        },
         create: function (options) {
             return new TestResultsViewModel(options.data);
         }
@@ -149,6 +176,23 @@ function HtmlTestToolViewModel()
     // Behaviours
     self.goToTab = function (tab) { location.hash = tab; };
     self.goToSession = function (session) { location.hash = 'results/' + session.id(); };
+
+    self.deleteSession = function (session)
+    {
+        showModal({
+            viewModel: new DeleteSessionViewModel(session),
+            context: this // Set context so we don't need to bind the callback function
+        }).then(function (result) {
+            $.ajax({
+                url: session.href(),
+                type: 'DELETE',
+                success: function (result) {
+                    self.updateSessionList();
+                }
+            });
+        });
+    };
+
     self.updateSessionList = function (fnCallback) 
     {
         if(self.endpoints.results)
@@ -183,7 +227,8 @@ function HtmlTestToolViewModel()
         }
     };
 
-    self.getEndpointForSession = function (id) {
+    self.getEndpointForSession = function (id)
+    {
         for(index in self.sessionList())
         {
             var item = self.sessionList()[index];
@@ -194,7 +239,8 @@ function HtmlTestToolViewModel()
         return null;
     };
 
-    self.session.subscribe(function (id) {
+    self.session.subscribe(function (id)
+    {
         if (false !== id) {
             location.hash = 'results/' + id;
             self.updateResults(id);
@@ -233,7 +279,8 @@ function HtmlTestToolViewModel()
     });
 
     // Get the endpoints
-    $.get("api.php", function (data) {
+    $.get("api.php", function (data)
+    {
         data.links.forEach(function (item) {
             self.endpoints[item.rel] = item.href;
         });
@@ -245,4 +292,3 @@ function HtmlTestToolViewModel()
 
 // Activates knockout.js
 ko.applyBindings(new HtmlTestToolViewModel());
-

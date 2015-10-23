@@ -71,7 +71,7 @@ $app->group('/results', function() use ($app)
         {
             while (($file = readdir($dh)) !== false) 
             {
-                if(is_numeric($file)) 
+                if(Session::isValidSession($file))
                 {
                     $session = new Session($file);
                     $sessionInfo = array(
@@ -116,6 +116,12 @@ $app->group('/results', function() use ($app)
                 'msg'   => 'Not JSON',
             ));
         }
+    });
+    $app->delete('/:id', function ($id) use($app) 
+    {
+        $session = new Session($id);
+        $session->delete();
+        $app->render(200, array());
     });
     $app->put('/:id/:index', function ($id, $index) use($app) 
     {

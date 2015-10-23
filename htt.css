@@ -15,8 +15,9 @@ body {
 .sessions th:nth-child(1), .sessions td:nth-child(1) { width: 5%; }
 .sessions th:nth-child(2), .sessions td:nth-child(2) { width: 40%; }
 .sessions th:nth-child(3), .sessions td:nth-child(3) { width: 5%; }
-.sessions th:nth-child(4), .sessions td:nth-child(4) { width: 25%; }
-.sessions th:nth-child(5), .sessions td:nth-child(5) { width: 25%; }
+.sessions th:nth-child(4), .sessions td:nth-child(4) { width: 23%; }
+.sessions th:nth-child(5), .sessions td:nth-child(5) { width: 23%; }
+.sessions th:nth-child(6), .sessions td:nth-child(6) { width: 4%; }
 .sessions th:last-child { border-right: none }
 .sessions tr:nth-child(even) { background-color: #EEE; }
 

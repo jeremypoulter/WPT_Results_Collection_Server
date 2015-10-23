@@ -48,7 +48,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test Runner</a>
                     <ul class="dropdown-menu">
-                        <li><a href="<?= $wpt_base ?>/tools/runner/tests.html" target="_blank">Simple</a></li>
+                        <li><a href="<?= $wpt_base ?>/tools/runner/runner_simple.html" target="_blank">Simple</a></li>
                         <li><a href="<?= $wpt_base ?>/tools/runner/index.html" target="_blank">Full</a></li>
                     </ul>
                 </li>
@@ -75,15 +75,17 @@ $results_endpoints = $http."://".$server.$port.$path;
                             <th>Count</th>
                             <th>Created</th>
                             <th>Modified</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody data-bind="foreach: sessionList">
-                        <tr data-bind="click: $root.goToSession">
-                            <td data-bind="text: id"></td>
+                        <tr>
+                            <td data-bind="text: id, click: $root.goToSession"></td>
                             <td data-bind="text: name() ? name : ''"></td>
-                            <td data-bind="text: count"></td>
-                            <td data-bind="text: new Date($data.created() * 1000)"></td>
-                            <td data-bind="text: new Date($data.modified() * 1000)"></td>
+                            <td data-bind="text: count, click: $root.goToSession"></td>
+                            <td data-bind="text: new Date($data.created() * 1000), click: $root.goToSession"></td>
+                            <td data-bind="text: new Date($data.modified() * 1000), click: $root.goToSession"></td>
+                            <td><a data-bind="click: $root.deleteSession" aria-hidden="true" aria-label="Delete"><span class="glyphicon glyphicon-trash"></span></a></td>
                         </tr>
                     </tbody>
                 </table>
@@ -146,6 +148,24 @@ $results_endpoints = $http."://".$server.$port.$path;
         </div>
     </div><!-- /.container -->
 
+    <script type="text/html" id="DeleteSession">
+        <div class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Delete session <span data-bind="text: session.id()"></span></h3>
+                    </div>
+                    <div class="modal-body">
+                        Are you sure you wish to delete session <span data-bind="text: session.id()"></span>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-bind="click: complete">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </script>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
@@ -155,6 +175,7 @@ $results_endpoints = $http."://".$server.$port.$path;
     <script src="js/knockout-3.3.0.js"></script>
     <script src="js/knockout.mapping-latest.js"></script>
     <script src="js/sammy-latest.min.js"></script>
+    <script src="js/modal.js"></script>
     <script src="js/test_tool_manager.js"></script>
   </body>
 </html>

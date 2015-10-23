@@ -8,6 +8,10 @@ class Session
 
     public function __construct($id)
     {
+        if(!Session::isValidSession($id)) {
+            throw new Exception('Not a valid session ID');
+        }
+
         $this->id = $id;
         $this->dir = SESSION_DIR.'/'.$id;
         if(!is_dir($this->dir)) {
@@ -97,6 +101,45 @@ class Session
     public function getModifiedTime()
     {
         return filemtime($this->dir.'/status');
+    }
+
+    public function delete()
+    {
+        // Delete the session file under lock to mark as invalid while we delete everything else
+        $this->lock();
+        unlink($this->dir.'/status');
+        $this->unlock();
+
+        if ($dh = opendir($this->dir)) 
+        {
+            while (($file = readdir($dh)) !== false) 
+            {
+                if('.' != $file && '..' != $file) 
+                {
+                    unlink($this->dir.'/'.$file);
+                }
+            }
+            closedir($dh);
+        }
+
+        rmdir($this->dir);
+    }
+
+    public static function isValidSession($id)
+    {
+        if(is_numeric($id))
+        {
+            $dir = SESSION_DIR.'/'.$id;
+            if(is_dir($dir)) 
+            {
+                if(is_file($dir.'/status')) 
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private function loadState()
