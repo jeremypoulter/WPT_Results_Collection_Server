@@ -226,6 +226,10 @@ function HtmlTestToolViewModel()
             self.session(this.params.sessionId);
 
         });
+
+        this.get('', function () {
+            this.redirect('#home');
+        });
     });
 
     // Get the endpoints
