@@ -65,6 +65,13 @@ function TestResultsViewModel(data)
     }, this);
 }
 
+function TestSessionViewModel(data)
+{
+    // Data
+    var self = this;
+    ko.mapping.fromJS(data, {}, self);
+}
+
 function DeleteSessionViewModel(session)
 {
     // Data
@@ -91,6 +98,9 @@ function HtmlTestToolViewModel()
     {
         key: function(data) {
             return ko.utils.unwrapObservable(data.id);
+        },
+        create: function (options) {
+            return new TestSessionViewModel(options.data);
         }
     };
 
@@ -185,10 +195,7 @@ function HtmlTestToolViewModel()
         }).then(function (result) {
             $.ajax({
                 url: session.href(),
-                type: 'DELETE',
-                success: function (result) {
-                    self.updateSessionList();
-                }
+                type: 'DELETE'
             });
         });
     };
@@ -259,6 +266,50 @@ function HtmlTestToolViewModel()
         }
     });
 
+    self.on_server_event = function (topic, data) 
+    {
+        // This is where you would add the new article to the DOM (beyond the scope of this tutorial)
+        console.log(topic);
+        console.log(data);
+
+        switch(data.action)
+        {
+            case "create":
+                if (self.sessionListValid())
+                {
+                    self.sessionList.push(new TestSessionViewModel(data.session));
+                }
+                break;
+            case "delete":
+                if (self.sessionListValid())
+                {
+                    self.sessionList.remove(function (item) {
+                        return item.id() == data.session;
+                    });
+                }
+                break;
+            case "result":
+                if (self.sessionListValid())
+                {
+                    for (index in self.sessionList())
+                    {
+                        var item = self.sessionList()[index];
+                        if (data.session.id == item.id())
+                        {
+                            item.count(data.session.count);
+                            item.modified(data.session.modified);
+                        }
+                    }
+                }
+
+                if (self.session() == data.session.id)
+                {
+                    self.results.push(new TestResultsViewModel(data.result));
+                }
+                break;
+        }
+    };
+
     // Client-side routes    
     var sammy = Sammy(function ()
     {
@@ -278,6 +329,18 @@ function HtmlTestToolViewModel()
         });
     });
 
+    // Events from the server
+    var conn = new ab.Session('ws://'+window.location.hostname+':8000',
+        function ()
+        {
+            conn.subscribe('html5_test_tool.dlna.org', self.on_server_event);
+        },
+        function () {
+            console.warn('WebSocket connection closed');
+        },
+        { 'skipSubprotocolCheck': true }
+    );
+
     // Get the endpoints
     $.get("api.php", function (data)
     {
@@ -292,3 +355,7 @@ function HtmlTestToolViewModel()
 
 // Activates knockout.js
 ko.applyBindings(new HtmlTestToolViewModel());
+
+
+
+

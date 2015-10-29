@@ -56,12 +56,14 @@ $app->group('/results', function() use ($app)
         $session = Session::createSession($status['count']);
         $status['count']++;
         $statusModified = true;
+        $sessionInfo = $session->getInfo();
+        $sessionInfo['href'] = $app->urlFor('results', array('id' => $session->id));
+        Notify(array(
+            'action' => 'create',
+            'session' => $sessionInfo
+        ));
         $app->render(200,array(
-            'session' => array(
-                'rel' => 'session', 
-                'id' => $session->id, 
-                'href' => $app->urlFor('results', array('id' => $session->id))
-            )
+            'session' => $sessionInfo
         ));
     });
     $app->get('/', function () use ($app) 
@@ -75,15 +77,8 @@ $app->group('/results', function() use ($app)
                 if(Session::isValidSession($file))
                 {
                     $session = new Session($file);
-                    $sessionInfo = array(
-                        'rel' => 'session', 
-                        'id' => $file, 
-                        'href' => $app->urlFor('results', array('id' => $file)),
-                        'name' => $session->getName(),
-                        'count' => $session->getCount(),
-                        'created' => $session->getCreatedTime(),
-                        'modified' => $session->getModifiedTime()
-                    );
+                    $sessionInfo = $session->getInfo();
+                    $sessionInfo['href'] = $app->urlFor('results', array('id' => $file));
                     array_push($sessions, $sessionInfo);
                 }
             }
@@ -109,7 +104,13 @@ $app->group('/results', function() use ($app)
         $result = json_decode($app->request->getBody(), true);
         if(false != $result)
         {
-            $session->saveResult($result);
+            $index = $session->saveResult($result);
+            $result['id'] = $index;
+            Notify(array(
+                'action' => 'result',
+                'session' => $session->getInfo(),
+                'result'  => $result,
+            ));
             $app->render(200, array());
         } else {
             $app->render(400, array(
@@ -122,6 +123,10 @@ $app->group('/results', function() use ($app)
     {
         $session = new Session($id);
         $session->delete();
+        Notify(array(
+            'action' => 'delete',
+            'session' => $id,
+        ));
         $app->render(200, array());
     });
     $app->put('/:id/:index', function ($id, $index) use($app) 
@@ -130,7 +135,13 @@ $app->group('/results', function() use ($app)
         $result = json_decode($app->request->getBody(), true);
         if(false != $result)
         {
-            $session->saveResult($result, $index);
+            $index = $session->saveResult($result, $index);
+            $result['id'] = $index;
+            Notify(array(
+                'action' => 'result',
+                'session' => $session->getInfo(),
+                'result'  => $result,
+            ));
             $app->render(200, array());
         } else {
             $app->render(400, array(
@@ -159,6 +170,15 @@ $app->run();
 if($statusModified)
 {
     file_put_contents(STATUS_FILE, json_encode($status));
+}
+
+function Notify($entryData)
+{
+    $context = new ZMQContext();
+    $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'my pusher');
+    $socket->connect("tcp://localhost:5555");
+
+    $socket->send(json_encode($entryData));
 }
 
 ?>

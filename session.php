@@ -58,6 +58,8 @@ class Session
         $this->unlock();
 
         file_put_contents($this->dir.'/'.$index, json_encode($result));
+
+        return $index;
     }
 
     public function getName() 
@@ -91,6 +93,18 @@ class Session
     public function getModifiedTime()
     {
         return filemtime($this->dir.'/status');
+    }
+
+    public function getInfo()
+    {
+        return array(
+            'rel' => 'session', 
+            'id' => $this->id,
+            'name' => $this->getName(),
+            'count' => $this->getCount(),
+            'created' => $this->getCreatedTime(),
+            'modified' => $this->getModifiedTime()
+        );
     }
 
     public function delete()

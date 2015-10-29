@@ -175,6 +175,7 @@ $results_endpoints = $http."://".$server.$port.$path;
     <script src="js/knockout-3.3.0.js"></script>
     <script src="js/knockout.mapping-latest.js"></script>
     <script src="js/sammy-latest.min.js"></script>
+    <script src="js/autobahn.min.js"></script>
     <script src="js/modal.js"></script>
     <script src="js/test_tool_manager.js"></script>
   </body>
