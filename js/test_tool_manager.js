@@ -12,54 +12,6 @@ function TestResultsViewModel(data)
     ko.mapping.fromJS(data, {}, self);
 
     // Derived values
-    self.result = ko.pureComputed(function ()
-    {
-        switch (self.status())
-        {
-            case "OK":
-                var sub = self.subtests();
-                for (index in sub)
-                {
-                    var item = sub[index];
-                    if ('PASS' != item.status()) {
-                        return item.status();
-                    }
-                }
-                return 'PASS';
-            default:
-                return self.status();
-        }
-    }, this);
-
-    self.subResultsCount = function (type)
-    {
-        var count = 0;
-        var sub = self.subtests();
-        for (index in sub)
-        {
-            var item = sub[index];
-            if (type == item.status()) {
-                count++;
-            }
-        }
-        return count;
-    };
-    self.subPass = ko.pureComputed(function () {
-        return self.subResultsCount('PASS');
-    }, this);
-    self.subFail = ko.pureComputed(function () {
-        return self.subResultsCount('FAIL');
-    }, this);
-    self.subTimeout = ko.pureComputed(function () {
-        return self.subResultsCount('TIMEOUT');
-    }, this);
-    self.subError = ko.pureComputed(function () {
-        return "ERROR" == self.status() ? 1 : 0;
-    }, this);
-    self.subCount = ko.pureComputed(function () {
-        return self.subtests().length;
-    }, this);
-
     self.resultClasses = ko.pureComputed(function () {
         return self.test.type() + " " + self.result().toLowerCase();
     }, this);
@@ -127,6 +79,12 @@ function HtmlTestToolViewModel()
     self.showTimeout = ko.observable(true);
     self.showError = ko.observable(true);
 
+    self.totalPass = ko.observable(0);
+    self.totalFail = ko.observable(0);
+    self.totalTimeout = ko.observable(0);
+    self.totalError = ko.observable(0);
+    self.totalCount = ko.observable(0);
+
     self.endpoints = [];
 
     // Derived data
@@ -140,32 +98,6 @@ function HtmlTestToolViewModel()
         return this.tab() == 'about';
     }, this);
 
-    self.subtestsCount = function (fn) {
-        var count = 0;
-        var sub = self.results();
-        for (index in sub) {
-            var item = sub[index];
-            count += fn(item);
-        }
-        return count;
-    };
-
-    self.totalPass = ko.pureComputed(function () {
-        return self.subtestsCount(function (sub) { return sub.subPass(); });
-    }, this);
-    self.totalFail = ko.pureComputed(function () {
-        return self.subtestsCount(function (sub) { return sub.subFail(); });
-    }, this);
-    self.totalTimeout = ko.pureComputed(function () {
-        return self.subtestsCount(function (sub) { return sub.subTimeout(); });
-    }, this);
-    self.totalError = ko.pureComputed(function () {
-        return self.subtestsCount(function (sub) { return sub.subError(); });
-    }, this);
-    self.totalCount = ko.pureComputed(function () {
-        return self.subtestsCount(function (sub) { return sub.subCount(); });
-    }, this);
-
     self.filters = ko.computed(function ()
     {
         var filters = [];
@@ -175,13 +107,9 @@ function HtmlTestToolViewModel()
         if (self.showError()) { filters.push("ERROR") }
         return filters;
     });
-    self.filteredResults = ko.computed(function ()
-    {
-        var filters = self.filters();
-        return ko.utils.arrayFilter(self.results(), function (result) {
-            return -1 != filters.indexOf(result.result());
-        });
-    }, this);
+    self.filters.subscribe(function () {
+        self.updateResults(self.session());
+    });
 
     // Behaviours
     self.goToTab = function (tab) { location.hash = tab; };
@@ -221,8 +149,13 @@ function HtmlTestToolViewModel()
         {
             if (self.sessionListValid())
             {
-                $.get(self.getEndpointForSession(id), function (data) {
+                $.get(self.getEndpointForSession(id), "filters="+self.filters(), function (data) {
                     ko.mapping.fromJS(data.results, self.results);
+                    self.totalPass(data.totalPass);
+                    self.totalFail(data.totalFail);
+                    self.totalTimeout(data.totalTimeout);
+                    self.totalError(data.totalError);
+                    self.totalCount(data.totalCount);
                 }, 'json');
             }
             else

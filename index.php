@@ -131,7 +131,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                             <th>Subtest Pass Rate</th>
                         </tr>
                     </thead>
-                    <tbody data-bind="foreach: filteredResults">
+                    <tbody data-bind="foreach: results">
                         <tr data-bind="css: resultClasses">
                             <td data-bind="text: test.url"></td>
                             <td data-bind="text: result"></td>

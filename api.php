@@ -96,7 +96,7 @@ $app->group('/results', function() use ($app)
     $app->get('/:id', function ($id) use($app) 
     {
         $session = new Session($id);
-        $app->render(200, $session->GetResults());
+        $app->render(200, $session->GetResults($app->request()->params('filters')));
     })->name('results');
     $app->post('/:id', function ($id) use($app) 
     {

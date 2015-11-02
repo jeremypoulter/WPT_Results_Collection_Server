@@ -16,9 +16,19 @@ class Session
         $this->dir = SESSION_DIR.'/'.$id;
     }
 
-    public function getResults()
+    public function getResults($filterString)
     {
         $results = array();
+
+        $totals = array(
+            'PASS' => 0, 
+            'FAIL' => 0, 
+            'TIMEOUT' => 0, 
+            'ERROR' => 0
+        );
+        $totalTests = 0;
+
+        $filters = (null !== $filterString) ? explode(',', $filterString) : array_keys($totals);
 
         if ($dh = opendir($this->dir)) 
         {
@@ -27,8 +37,28 @@ class Session
                 if(is_numeric($file)) 
                 {
                     $result = json_decode(file_get_contents($this->dir.'/'.$file), true);
-                    $result['id'] = $file;
-                    array_push($results, $result);
+                    $subTotals = array(
+                        'PASS' => 0, 
+                        'FAIL' => 0, 
+                        'TIMEOUT' => 0, 
+                        'ERROR' => 0
+                    );
+                    $testStatus = $this->getTestStatus($result, $subTotals);
+                    foreach(array_keys($totals) as $key) {
+                        $totals[$key] += $subTotals[$key];
+                    }
+                    $totalTests += count($result['subtests']);
+                    if(in_array($testStatus, $filters))
+                    {
+                        $result['id'] = $file;
+                        $result['result'] = $testStatus;
+                        $result['subPass'] = $subTotals['PASS'];
+                        $result['subFail'] = $subTotals['FAIL'];
+                        $result['subTimeout'] = $subTotals['TIMEOUT'];
+                        $result['subError'] = $subTotals['ERROR'];
+                        $result['subCount'] = count($result['subtests']);
+                        array_push($results, $result);
+                    }
                 }
             }
             closedir($dh);
@@ -38,7 +68,13 @@ class Session
             return $a['id'] - $b['id'];
         });
 
-        return array('results' => $results);
+        return array('results' => $results,
+                     'totalPass' => $totals['PASS'],
+                     'totalFail' => $totals['FAIL'],
+                     'totalTimeout' => $totals['TIMEOUT'],
+                     'totalError' => $totals['ERROR'],
+                     'totalCount' => $totalTests
+                     );
     }
 
     public function saveResult($result, $index = false)
@@ -187,6 +223,29 @@ class Session
 
         $this->lock = false;
         unlink($this->dir.'/lock');
+    }
+
+    private function getTestStatus($result, &$subTotals)
+    {
+        $status = 'PASS';
+
+        switch ($result['status'])
+        {
+            case "OK":
+                foreach($result['subtests'] as $item)
+                {
+                    if ('PASS' != $item['status']) {
+                        $status = $item['status'];
+                    }
+                    $subTotals[$item['status']]++;
+                }
+                break;
+            default:
+                $status = $result['status'];
+                $subTotals[$result['status']]++;
+        }
+
+        return $status;
     }
 }
 ?>
