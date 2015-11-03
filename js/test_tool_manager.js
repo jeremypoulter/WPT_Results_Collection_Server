@@ -181,18 +181,27 @@ function HtmlTestToolViewModel()
         }
     };
 
+    self.updateId = false;
+    self.delayUpdate = false;
     self.updateResults = function (id)
     {
         if (self.endpoints.results)
         {
             if (self.sessionListValid())
             {
-                $.get(self.getEndpointForSession(id),
+                if (false !== self.updateId) {
+                    self.delayUpdate = true;
+                    return;
+                }
+
+                self.updateId = $.get(self.getEndpointForSession(id),
                     "filters=" + self.filters() + "&" +
                     "pageIndex=" + self.pageIndex() + "&" +
                     "pageSize=" + self.pageSize(),
                     function (data)
                     {
+                        self.updateId = false;
+
                         ko.mapping.fromJS(data.results, self.results);
                         self.totalPass(data.totalPass);
                         self.totalFail(data.totalFail);
@@ -200,8 +209,17 @@ function HtmlTestToolViewModel()
                         self.totalError(data.totalError);
                         self.totalCount(data.totalCount);
                         self.totalResults(data.totalResults);
-                        if (self.pageIndex() > self.numPages()) {
+                        if (self.pageIndex() < 1) {
+                            self.pageIndex(1);
+                        }
+                        if(self.pageIndex() > self.numPages()) {
                             self.pageIndex(self.numPages());
+                        }
+
+                        if (self.delayUpdate)
+                        {
+                            self.delayUpdate = false;
+                            self.updateResults(id);
                         }
                     }, 'json');
             }
@@ -290,9 +308,10 @@ function HtmlTestToolViewModel()
                     }
                 }
 
-                if (self.session() == data.session.id)
+                if (self.session() == data.session.id &&
+                    self.pageIndex() == self.numPages())
                 {
-                    self.results.push(new TestResultsViewModel(data.result));
+                    self.updateResults(self.session());
                 }
                 break;
         }
