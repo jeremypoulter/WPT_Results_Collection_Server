@@ -16,7 +16,7 @@ class Session
         $this->dir = SESSION_DIR.'/'.$id;
     }
 
-    public function getResults($filterString)
+    public function getResults($filterString, $pageIndex, $pageSize)
     {
         $results = array();
 
@@ -27,6 +27,7 @@ class Session
             'ERROR' => 0
         );
         $totalTests = 0;
+        $totalResults = 0;
 
         $filters = (null !== $filterString) ? explode(',', $filterString) : array_keys($totals);
 
@@ -48,6 +49,7 @@ class Session
                         $totals[$key] += $subTotals[$key];
                     }
                     $totalTests += count($result['subtests']);
+
                     if(in_array($testStatus, $filters))
                     {
                         $result['id'] = $file;
@@ -58,6 +60,8 @@ class Session
                         $result['subError'] = $subTotals['ERROR'];
                         $result['subCount'] = count($result['subtests']);
                         array_push($results, $result);
+
+                        $totalResults++;
                     }
                 }
             }
@@ -68,12 +72,17 @@ class Session
             return $a['id'] - $b['id'];
         });
 
+        if(null !== $pageIndex && null !== $pageSize) {
+            $results = array_slice($results, ($pageIndex - 1) * $pageSize, $pageSize);
+        }
+
         return array('results' => $results,
                      'totalPass' => $totals['PASS'],
                      'totalFail' => $totals['FAIL'],
                      'totalTimeout' => $totals['TIMEOUT'],
                      'totalError' => $totals['ERROR'],
-                     'totalCount' => $totalTests
+                     'totalCount' => $totalTests,
+                     'totalResults' => $totalResults
                      );
     }
 

@@ -141,6 +141,16 @@ $results_endpoints = $http."://".$server.$port.$path;
                     </tbody>
                 </table>
 
+                <div class="row pull-right">
+
+                    <div class="btn-group">
+                        <button class="btn btn-default" data-bind="enable: pageIndex() > 1, click: function () { goToPage(pageIndex() - 1) }">Previous</button>
+                        <!-- ko foreach: pages -->
+                        <button class="btn btn-default" data-bind="text: $data, css: { active: $data == $root.pageIndex() }, click: $root.goToPage.bind($data)"></button>
+                        <!-- /ko -->
+                        <button class="btn btn-default" data-bind="enable: pageIndex() < numPages(), click: function () { goToPage(pageIndex() + 1) }">Next</button>
+                    </div>
+                </div>
             </div>
         </div>
 

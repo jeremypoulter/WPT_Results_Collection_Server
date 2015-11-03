@@ -68,24 +68,62 @@ function HtmlTestToolViewModel()
 
     // Data
     var self = this;
-    self.tab = ko.observable(null);
-    self.session = ko.observable(false);
+
     self.sessionList = ko.mapping.fromJS([], sessionListMapping);
     self.sessionListValid = ko.observable(false);
-    self.results = ko.mapping.fromJS([], resultsMapping);
 
-    self.showPass = ko.observable(true);
-    self.showFail = ko.observable(true);
-    self.showTimeout = ko.observable(true);
-    self.showError = ko.observable(true);
+    self.session = ko.observable(false);
+    self.results = ko.mapping.fromJS([], resultsMapping);
 
     self.totalPass = ko.observable(0);
     self.totalFail = ko.observable(0);
     self.totalTimeout = ko.observable(0);
     self.totalError = ko.observable(0);
     self.totalCount = ko.observable(0);
+    self.totalResults = ko.observable(0);
 
     self.endpoints = [];
+
+    self.tab = ko.observable(null);
+
+    self.showPass = ko.observable(true);
+    self.showFail = ko.observable(true);
+    self.showTimeout = ko.observable(true);
+    self.showError = ko.observable(true);
+
+    self.pageSize = ko.observable(25);
+    self.pageIndex = ko.observable(1);
+
+    self.numPages = ko.pureComputed(function () { return Math.ceil(self.totalResults() / self.pageSize()); }, this);
+    self.pages = ko.pureComputed(function ()
+    {
+        var pages = [];
+        var numPages = self.numPages();
+
+        var startPage = 1;
+        var endPage = numPages;
+
+        if (numPages > 7)
+        {
+            startPage = self.pageIndex() - 3;
+            endPage = self.pageIndex() + 3;
+            if (startPage < 1)
+            {
+                endPage += 1 - startPage;
+                startPage += 1 - startPage;
+            }
+            else if(endPage > numPages)
+            {
+                startPage -= endPage - numPages;
+                endPage -= endPage - numPages;
+            }
+        }
+
+        for (var i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+        return pages;
+    }, this);
 
     // Derived data
     self.isHome = ko.pureComputed(function () {
@@ -107,13 +145,13 @@ function HtmlTestToolViewModel()
         if (self.showError()) { filters.push("ERROR") }
         return filters;
     });
-    self.filters.subscribe(function () {
-        self.updateResults(self.session());
-    });
 
     // Behaviours
     self.goToTab = function (tab) { location.hash = tab; };
     self.goToSession = function (session) { location.hash = 'results/' + session.id(); };
+    self.goToPage = function (page) {
+        self.pageIndex(page);
+    };
 
     self.deleteSession = function (session)
     {
@@ -149,14 +187,23 @@ function HtmlTestToolViewModel()
         {
             if (self.sessionListValid())
             {
-                $.get(self.getEndpointForSession(id), "filters="+self.filters(), function (data) {
-                    ko.mapping.fromJS(data.results, self.results);
-                    self.totalPass(data.totalPass);
-                    self.totalFail(data.totalFail);
-                    self.totalTimeout(data.totalTimeout);
-                    self.totalError(data.totalError);
-                    self.totalCount(data.totalCount);
-                }, 'json');
+                $.get(self.getEndpointForSession(id),
+                    "filters=" + self.filters() + "&" +
+                    "pageIndex=" + self.pageIndex() + "&" +
+                    "pageSize=" + self.pageSize(),
+                    function (data)
+                    {
+                        ko.mapping.fromJS(data.results, self.results);
+                        self.totalPass(data.totalPass);
+                        self.totalFail(data.totalFail);
+                        self.totalTimeout(data.totalTimeout);
+                        self.totalError(data.totalError);
+                        self.totalCount(data.totalCount);
+                        self.totalResults(data.totalResults);
+                        if (self.pageIndex() > self.numPages()) {
+                            self.pageIndex(self.numPages());
+                        }
+                    }, 'json');
             }
             else
             {
@@ -197,6 +244,14 @@ function HtmlTestToolViewModel()
                 self.updateSessionList();
                 break;
         }
+    });
+
+    self.filters.subscribe(function () {
+        self.updateResults(self.session());
+    });
+
+    self.pageIndex.subscribe(function () {
+        self.updateResults(self.session());
     });
 
     self.on_server_event = function (topic, data) 
