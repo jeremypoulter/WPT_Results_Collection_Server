@@ -308,8 +308,7 @@ function HtmlTestToolViewModel()
                     }
                 }
 
-                if (self.session() == data.session.id &&
-                    self.pageIndex() == self.numPages())
+                if (self.session() == data.session.id)
                 {
                     self.updateResults(self.session());
                 }
