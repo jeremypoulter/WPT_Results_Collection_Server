@@ -166,6 +166,14 @@ function HtmlTestToolViewModel()
         });
     };
 
+    self.downloadSession = function (session)
+    {
+        var parser = document.createElement('a');
+        parser.href = session.href();
+        parser.search = 'download=1';
+        location.href = parser.href;
+    };
+
     self.updateSessionList = function (fnCallback) 
     {
         if(self.endpoints.results)

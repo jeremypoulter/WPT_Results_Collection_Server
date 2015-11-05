@@ -96,6 +96,11 @@ $app->group('/results', function() use ($app)
     $app->get('/:id', function ($id) use($app) 
     {
         $session = new Session($id);
+        $download = $app->request()->params('download');
+        if(null != $download && $download) {
+            header("Content-Disposition: attachment; filename=\"$id.json\"");
+        }
+        
         $app->render(200, $session->GetResults($app->request()->params('filters'), 
                                                $app->request()->params('pageIndex'), 
                                                $app->request()->params('pageSize')));
