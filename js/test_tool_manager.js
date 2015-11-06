@@ -211,12 +211,12 @@ function HtmlTestToolViewModel()
                         self.updateId = false;
 
                         ko.mapping.fromJS(data.results, self.results);
-                        self.totalPass(data.totalPass);
-                        self.totalFail(data.totalFail);
-                        self.totalTimeout(data.totalTimeout);
-                        self.totalError(data.totalError);
-                        self.totalCount(data.totalCount);
-                        self.totalResults(data.totalResults);
+                        self.totalPass(data.totals.PASS);
+                        self.totalFail(data.totals.FAIL);
+                        self.totalTimeout(data.totals.TIMEOUT);
+                        self.totalError(data.totals.ERROR);
+                        self.totalCount(data.totals.ALL);
+                        self.totalResults(data.numResults);
                         if (self.pageIndex() < 1) {
                             self.pageIndex(1);
                         }

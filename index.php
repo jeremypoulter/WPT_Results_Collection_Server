@@ -140,7 +140,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                             <td data-bind="text: test.url"></td>
                             <td data-bind="text: result"></td>
                             <td data-bind="text: message"></td>
-                            <td><span data-bind="text: subPass"></span>/<span data-bind="text: subCount"></span></td>
+                            <td><span data-bind="text: totals.PASS"></span>/<span data-bind="text: count"></span></td>
                         </tr>
                     </tbody>
                 </table>

@@ -6,6 +6,8 @@ class Session
     private $status = false;
     private $lock = false;
 
+    static private $statusTypes = array('PASS', 'FAIL', 'TIMEOUT', 'ERROR');
+
     public function __construct($id)
     {
         if(!Session::isValidSession($id)) {
@@ -14,22 +16,17 @@ class Session
 
         $this->id = $id;
         $this->dir = SESSION_DIR.'/'.$id;
+        $this->loadState();
     }
 
     public function getResults($filterString, $pageIndex, $pageSize)
     {
         $results = array();
 
-        $totals = array(
-            'PASS' => 0, 
-            'FAIL' => 0, 
-            'TIMEOUT' => 0, 
-            'ERROR' => 0
-        );
         $totalTests = 0;
         $totalResults = 0;
 
-        $filters = (null !== $filterString) ? explode(',', $filterString) : array_keys($totals);
+        $filters = (null !== $filterString) ? explode(',', $filterString) : self::$statusTypes;
 
         if ($dh = opendir($this->dir)) 
         {
@@ -38,29 +35,12 @@ class Session
                 if(is_numeric($file)) 
                 {
                     $result = json_decode(file_get_contents($this->dir.'/'.$file), true);
-                    $subTotals = array(
-                        'PASS' => 0, 
-                        'FAIL' => 0, 
-                        'TIMEOUT' => 0, 
-                        'ERROR' => 0
-                    );
-                    $testStatus = $this->getTestStatus($result, $subTotals);
-                    foreach(array_keys($totals) as $key) {
-                        $totals[$key] += $subTotals[$key];
-                    }
+                    $testStatus = $result['result'];
                     $totalTests += count($result['subtests']);
 
                     if(in_array($testStatus, $filters))
                     {
-                        $result['id'] = $file;
-                        $result['result'] = $testStatus;
-                        $result['subPass'] = $subTotals['PASS'];
-                        $result['subFail'] = $subTotals['FAIL'];
-                        $result['subTimeout'] = $subTotals['TIMEOUT'];
-                        $result['subError'] = $subTotals['ERROR'];
-                        $result['subCount'] = count($result['subtests']);
                         array_push($results, $result);
-
                         $totalResults++;
                     }
                 }
@@ -77,39 +57,35 @@ class Session
         }
 
         return array('results' => $results,
-                     'totalPass' => $totals['PASS'],
-                     'totalFail' => $totals['FAIL'],
-                     'totalTimeout' => $totals['TIMEOUT'],
-                     'totalError' => $totals['ERROR'],
-                     'totalCount' => $totalTests,
-                     'totalResults' => $totalResults
+                     'totals' => $this->status['totals'],
+                     'numResults' => $totalResults
                      );
     }
 
     public function saveResult($result, $index = false)
     {
         $this->lock();
-
         $this->loadState();
+
         if(false === $index) {
             $index = $this->status['count'];
             $this->status['count']++;
-            $this->saveState();
         } else if($index >= $this->status['count']) {
             $this->status['count'] = $index + 1;
-            $this->saveState();
         }
 
-        $this->unlock();
-
+        $result['id'] = $index;
+        $this->updateTestStats($result, $this->status['totals']);
         file_put_contents($this->dir.'/'.$index, json_encode($result));
+
+        $this->saveState();
+        $this->unlock();
 
         return $index;
     }
 
     public function getName() 
     {
-        $this->loadState();
         return array_key_exists('name', $this->status) ? $this->status['name'] : false;
     }
 
@@ -126,7 +102,6 @@ class Session
 
     public function getCount() 
     {
-        $this->loadState();
         return $this->status['count'];
     }
 
@@ -147,6 +122,7 @@ class Session
             'id' => $this->id,
             'name' => $this->getName(),
             'count' => $this->getCount(),
+            'totals' => $this->status['totals'],
             'created' => $this->getCreatedTime(),
             'modified' => $this->getModifiedTime()
         );
@@ -203,7 +179,8 @@ class Session
         $dir = SESSION_DIR.'/'.$id;
         mkdir($dir);
         file_put_contents($dir.'/status', json_encode(array(
-            'count' => 0
+            'count' => 0,
+            'totals' => self::createStatsArray()
         )));
 
         return new Session($id);
@@ -234,9 +211,23 @@ class Session
         unlink($this->dir.'/lock');
     }
 
-    private function getTestStatus($result, &$subTotals)
+    static private function &createStatsArray()
     {
+        $stats = array();
+        foreach(self::$statusTypes as $type) {
+            $stats[$type] = 0;
+        }
+        $stats['ALL'] = 0;
+
+        return $stats;
+    }
+
+    private function updateTestStats(&$result, &$totals)
+    {
+        $result['time'] = microtime(true);
+
         $status = 'PASS';
+        $subTotals = self::createStatsArray();
 
         switch ($result['status'])
         {
@@ -254,7 +245,13 @@ class Session
                 $subTotals[$result['status']]++;
         }
 
-        return $status;
+        $subTotals['ALL'] = count($result['subtests']);
+        $result['totals'] = $subTotals;
+        $result['result'] = $status;
+
+        foreach(array_keys($totals) as $key) {
+            $totals[$key] += $subTotals[$key];
+        }
     }
 }
 ?>

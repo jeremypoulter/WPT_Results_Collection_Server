@@ -44,7 +44,7 @@ if(file_exists(STATUS_FILE)) {
 }
 
 $app = new \Slim\Slim();
-
+$app->config('debug', false);
 $app->view(new \JsonApiView());
 $app->add(new \JsonApiMiddleware());
 
