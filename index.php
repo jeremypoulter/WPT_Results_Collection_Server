@@ -1,7 +1,7 @@
 <?PHP
 
-//$wpt_base = "http://web-platform.test:9001";
-$wpt_base = "http://localhost:57826/";
+$wpt_base = "http://web-platform.test:9001";
+//$wpt_base = "http://localhost:57826/";
 $http = array_key_exists("REQUEST_SCHEME", $_SERVER) ? $_SERVER["REQUEST_SCHEME"] : "http";
 $server = array_key_exists("HTTP_HOST", $_SERVER) ? $_SERVER["HTTP_HOST"] : "http";
 $port = (array_key_exists("SERVER_PORT", $_SERVER) && $_SERVER["SERVER_PORT"] != 80) ? ":".$_SERVER["SERVER_PORT"] : "";
@@ -140,7 +140,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                             <td data-bind="text: test.url"></td>
                             <td data-bind="text: result"></td>
                             <td data-bind="text: message"></td>
-                            <td><span data-bind="text: totals.PASS"></span>/<span data-bind="text: count"></span></td>
+                            <td><span data-bind="text: totals.PASS"></span>/<span data-bind="text: totals.ALL"></span></td>
                         </tr>
                     </tbody>
                 </table>

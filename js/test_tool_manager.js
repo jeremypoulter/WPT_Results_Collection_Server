@@ -74,12 +74,7 @@ function HtmlTestToolViewModel()
 
     self.session = ko.observable(false);
     self.results = ko.mapping.fromJS([], resultsMapping);
-
-    self.totalPass = ko.observable(0);
-    self.totalFail = ko.observable(0);
-    self.totalTimeout = ko.observable(0);
-    self.totalError = ko.observable(0);
-    self.totalCount = ko.observable(0);
+    self.totals = ko.mapping.fromJS({ PASS:0, FAIL:0, TIMEOUT:0, ERROR:0, ALL:0 }, resultsMapping);
     self.totalResults = ko.observable(0);
 
     self.endpoints = [];
@@ -94,6 +89,7 @@ function HtmlTestToolViewModel()
     self.pageSize = ko.observable(25);
     self.pageIndex = ko.observable(1);
 
+    // Derived data
     self.numPages = ko.pureComputed(function () { return Math.ceil(self.totalResults() / self.pageSize()); }, this);
     self.pages = ko.pureComputed(function ()
     {
@@ -125,7 +121,26 @@ function HtmlTestToolViewModel()
         return pages;
     }, this);
 
-    // Derived data
+    self.totalPass = ko.pureComputed(function () {
+        return this.totals.PASS();
+    }, this);
+    self.totalFail = ko.pureComputed(function ()
+    {
+        return this.totals.FAIL();
+    }, this);
+    self.totalTimeout = ko.pureComputed(function ()
+    {
+        return this.totals.TIMEOUT();
+    }, this);
+    self.totalError = ko.pureComputed(function ()
+    {
+        return this.totals.ERROR();
+    }, this);
+    self.totalCount = ko.pureComputed(function ()
+    {
+        return this.totals.ALL();
+    }, this);
+
     self.isHome = ko.pureComputed(function () {
         return this.tab() == 'home';
     }, this);
@@ -211,11 +226,7 @@ function HtmlTestToolViewModel()
                         self.updateId = false;
 
                         ko.mapping.fromJS(data.results, self.results);
-                        self.totalPass(data.totals.PASS);
-                        self.totalFail(data.totals.FAIL);
-                        self.totalTimeout(data.totals.TIMEOUT);
-                        self.totalError(data.totals.ERROR);
-                        self.totalCount(data.totals.ALL);
+                        ko.mapping.fromJS(data.totals, self.totals);
                         self.totalResults(data.numResults);
                         if (self.pageIndex() < 1) {
                             self.pageIndex(1);
