@@ -1,4 +1,4 @@
-/// <reference path="jquery-1.9.1.js" />
+﻿/// <reference path="jquery-1.9.1.js" />
 /// <reference path="bootstrap.js" />
 /// <reference path="knockout-3.3.0.debug.js" />
 /// <reference path="knockout.mapping-latest.debug.js" />
@@ -115,8 +115,14 @@ function HtmlTestToolViewModel()
             }
         }
 
+        if (startPage > 1) {
+            pages.push('…');
+        }
         for (var i = startPage; i <= endPage; i++) {
             pages.push(i);
+        }
+        if (endPage < numPages) {
+            pages.push('…');
         }
         return pages;
     }, this);

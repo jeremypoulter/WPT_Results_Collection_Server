@@ -146,14 +146,15 @@ $results_endpoints = $http."://".$server.$port.$path;
                 </table>
 
                 <div class="row pull-right">
-
-                    <div class="btn-group">
-                        <button class="btn btn-default" data-bind="enable: pageIndex() > 1, click: function () { goToPage(pageIndex() - 1) }">Previous</button>
+                    <ul class="pagination">
+                        <li data-bind="css: { disabled: pageIndex() <= 1 }"><a data-bind="click: function () { goToPage(1) }">|&laquo;</a></li>
+                        <li data-bind="css: { disabled: pageIndex() <= 1 }"><a data-bind="click: function () { goToPage(pageIndex() - 1) }">&laquo;</a></li>
                         <!-- ko foreach: pages -->
-                        <button class="btn btn-default" data-bind="text: $data, css: { active: $data == $root.pageIndex() }, click: $root.goToPage.bind($data)"></button>
+                        <li data-bind="css: { active: $data == $root.pageIndex(), disabled: '&hellip;' == $data }"><a data-bind="text: $data, click: $root.goToPage.bind($data)"></a></li>
                         <!-- /ko -->
-                        <button class="btn btn-default" data-bind="enable: pageIndex() < numPages(), click: function () { goToPage(pageIndex() + 1) }">Next</button>
-                    </div>
+                        <li data-bind="css: { disabled: pageIndex() >= numPages() }"><a data-bind="click: function () { goToPage(pageIndex() + 1) }">&raquo;</a></li>
+                        <li data-bind="css: { disabled: pageIndex() >= numPages() }"><a data-bind="click: function () { goToPage(numPages()) }">&raquo;|</a></li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -191,6 +192,6 @@ $results_endpoints = $http."://".$server.$port.$path;
     <script src="js/sammy-latest.min.js"></script>
     <script src="js/autobahn.min.js"></script>
     <script src="js/modal.js"></script>
-    <script src="js/test_tool_manager.js"></script>
+    <script src="js/test_tool_manager.js" charset="UTF-8"></script>
   </body>
 </html>
