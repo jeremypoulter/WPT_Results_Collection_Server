@@ -86,14 +86,16 @@ class Session
 
     public function getName() 
     {
-        return array_key_exists('name', $this->status) ? $this->status['name'] : false;
+        return array_key_exists('name', $this->status) ? $this->status['name'] : '';
     }
 
     public function setName($newName) 
     {
         $this->lock();
         $this->loadState();
-        if($newName != $this->status['name']) {
+        if(!array_key_exists('name', $this->status) || 
+           $newName != $this->status['name']) 
+        {
             $this->status['name'] = $newName;
             $this->saveState();
         }

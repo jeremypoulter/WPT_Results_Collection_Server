@@ -112,14 +112,22 @@ $app->group('/results', function() use ($app)
         $result = json_decode($app->request->getBody(), true);
         if(false != $result)
         {
-            $index = $session->saveResult($result);
-            $result['id'] = $index;
-            Notify(array(
-                'action' => 'result',
-                'session' => $session->getInfo(),
-                'result'  => $result,
-            ));
-            $app->render(200, array());
+            if(array_key_exists('name', $result))
+            {
+                $index = $session->setName($result['name']);
+                $app->render(200, array());
+            }
+            else
+            {
+                $index = $session->saveResult($result);
+                $result['id'] = $index;
+                Notify(array(
+                    'action' => 'result',
+                    'session' => $session->getInfo(),
+                    'result'  => $result,
+                ));
+                $app->render(200, array());
+            }
         } else {
             $app->render(400, array(
                 'error' => true,
