@@ -25,19 +25,14 @@
     <Compile Include="api.php" />
     <Compile Include="session.php" />
     <Compile Include="templates\json.php" />
-    <Compile Include="upload\download.html" />
     <Compile Include="LICENSE" />
     <Compile Include="logo.svg" />
     <Compile Include="README.md" />
-    <Compile Include="upload\test.php" />
-    <Compile Include="upload\upload.js" />
-    <Compile Include="upload\upload.php" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="css\" />
     <Folder Include="js\" />
     <Folder Include="templates\" />
-    <Folder Include="upload\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="composer.json" />
