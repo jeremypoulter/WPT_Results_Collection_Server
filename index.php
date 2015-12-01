@@ -52,7 +52,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test Runner</a>
                         <ul class="dropdown-menu">
                             <li>
-                                <a href="<?= $wpt_base ?>/tools/runner/runner_simple.html" target="_blank">Simple</a>
+                                <a href="<?= $wpt_base ?>/tools/runner/tests.html" target="_blank">Simple</a>
                             </li>
                             <li>
                                 <a href="<?= $wpt_base ?>/tools/runner/index.html" target="_blank">Full</a>
