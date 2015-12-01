@@ -128,6 +128,8 @@ function HtmlTestToolViewModel()
     self.totals = ko.mapping.fromJS({ PASS:0, FAIL:0, TIMEOUT:0, ERROR:0, ALL:0 }, resultsMapping);
     self.totalResults = ko.observable(0);
 
+    self.fetching = ko.observable(false);
+
     self.endpoints = [];
 
     self.tab = ko.observable(null);
@@ -250,6 +252,7 @@ function HtmlTestToolViewModel()
     {
         if(self.endpoints.results)
         {
+            self.fetching(false);
             $.get(self.endpoints.results, function (data)
             {
                 ko.mapping.fromJS(data.sessions, self.sessionList);
@@ -257,6 +260,7 @@ function HtmlTestToolViewModel()
                 if (fnCallback) {
                     fnCallback();
                 }
+                self.fetching(true);
             }, 'json');
         }
     };
@@ -274,6 +278,7 @@ function HtmlTestToolViewModel()
                     return;
                 }
 
+                self.fetching(true);
                 self.updateId = $.get(self.getEndpointForSession(id),
                     "filters=" + self.filters() + "&" +
                     "pageIndex=" + self.pageIndex() + "&" +
@@ -297,6 +302,8 @@ function HtmlTestToolViewModel()
                             self.delayUpdate = false;
                             self.updateResults(id);
                         }
+
+                        self.fetching(false);
                     }, 'json');
             }
             else

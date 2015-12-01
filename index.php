@@ -163,7 +163,14 @@ $results_endpoints = $http."://".$server.$port.$path;
                     </tbody>
                 </table>
 
-                <table class="results">
+                <div class="container" data-bind="visible: fetching">
+                    <button class="btn btn-lg btn-warning center-block">
+                        <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                        Loading...
+                    </button>
+                </div>
+
+                <table class="results" data-bind="visible: !fetching()">
                     <thead>
                         <tr>
                             <th>Test</th>
