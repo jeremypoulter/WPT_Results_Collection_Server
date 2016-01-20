@@ -7,18 +7,19 @@
 require 'vendor/autoload.php';
 
 require 'session.php';
+require 'reference.php';
 
 error_reporting(E_ALL);
 ini_set('memory_limit', -1);
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
-//header('Content-Type: application/json');
 
 // Configuration
 define('DATA_DIR', dirname(__FILE__).'/data');
 define('SESSION_DIR', DATA_DIR.'/results');
 define('STATUS_FILE', DATA_DIR.'/status');
+define('REFERENCE_DIR', dirname(__FILE__).'/reference');
 
 // State
 $found = false;
@@ -30,6 +31,10 @@ if(!file_exists(DATA_DIR)) {
 
 if(!file_exists(SESSION_DIR)) {
     mkdir(SESSION_DIR);
+}
+
+if(!file_exists(REFERENCE_DIR)) {
+    throw new Exception("Reference results dir '".REFERENCE_DIR."' not found");
 }
 
 // Load our status
@@ -170,13 +175,58 @@ $app->group('/results', function() use ($app)
         $app->render(200, array());
     });
 });
-$app->get('/', function () use ($app)  {
+$app->group('/references', function() use ($app)
+{
+    $app->get('/', function () use ($app)
+    {
+        $references = array();
+
+        if ($dh = opendir(REFERENCE_DIR))
+        {
+            while (($file = readdir($dh)) !== false)
+            {
+                if(Reference::isValidResults($file))
+                {
+                    $reference = new Reference($file);
+                    $referenceInfo = $reference->getInfo();
+                    $referenceInfo['href'] = $app->urlFor('references', array('id' => $file));
+                    array_push($references, $referenceInfo);
+                }
+            }
+            closedir($dh);
+        }
+
+        sort($references);
+
+        $app->render(200, array(
+            'references' => $references
+        ));
+    })->name('referenceIndex');
+    $app->get('/:id', function ($id) use($app)
+    {
+        $reference = new Reference($id);
+        $download = $app->request()->params('download');
+        if(null != $download && $download) {
+            header("Content-Disposition: attachment; filename=\"$id.json\"");
+        }
+
+        $app->render(200, $reference->GetResults($app->request()->params('filters'),
+                                                 $app->request()->params('pageIndex'),
+                                                 $app->request()->params('pageSize')));
+    })->name('references');
+
+});
+    $app->get('/', function () use ($app)  {
     global $status, $statusModified;
     $app->render(200, array_merge($status, array(
         'links' => array(
             array(
                 'rel' => 'results', 
                 'href' => $app->urlFor('resultIndex')
+            ),
+            array(
+                'rel' => 'references',
+                'href' => $app->urlFor('referenceIndex')
             )
         )
     )));

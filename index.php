@@ -62,6 +62,9 @@ $results_endpoints = $http."://".$server.$port.$path;
                     <li data-bind="css: { active: isResults }">
                         <a href="#results">Results</a>
                     </li>
+                    <li data-bind="css: { active: isValidation }">
+                        <a href="#validation">Validation</a>
+                    </li>
                     <li data-bind="css: { active: isAbout }">
                         <a href="#about">About</a>
                     </li>
@@ -217,6 +220,24 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
         </div>
 
+        <div data-bind="visible: isValidation">
+            <div data-bind="visible: false === validationId()">
+                <div>
+                    <select class="form-control" data-bind="options: referenceList,
+                                                            optionsText: 'name',
+                                                            optionsValue: 'id',
+                                                            value: selectedReference,
+                                                            optionsCaption: 'Choose...'"></select>
+                </div>
+                <div>
+                    <select class="form-control" data-bind="options: sessionListNamed,
+                                                        optionsText: 'name',
+                                                        optionsValue: 'id',
+                                                        value: selectedSession,
+                                                        optionsCaption: 'Choose...'"></select>
+                </div>
+
+            </div>
         <div data-bind="visible: isAbout"></div>
     </div>
     <!-- /.container -->

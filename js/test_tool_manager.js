@@ -1,4 +1,4 @@
-﻿/// <reference path="jquery-1.9.1.js" />
+/// <reference path="jquery-1.9.1.js" />
 /// <reference path="bootstrap.js" />
 /// <reference path="knockout-3.3.0.debug.js" />
 /// <reference path="knockout.mapping-latest.debug.js" />
@@ -27,6 +27,13 @@ function TestSessionViewModel(data)
         $.post(self.href(), JSON.stringify({ name: value }), function () {
         });
     });
+}
+
+function TestReferenceViewModel(data)
+{
+    // Data
+    var self = this;
+    ko.mapping.fromJS(data, {}, self);
 }
 
 function DeleteSessionViewModel(session)
@@ -108,6 +115,16 @@ function HtmlTestToolViewModel()
         }
     };
 
+    var referenceListMapping =
+    {
+        key: function (data) {
+            return ko.utils.unwrapObservable(data.id);
+        },
+        create: function (options) {
+            return new TestReferenceViewModel(options.data);
+        }
+    };
+
     var resultsMapping =
     {
         key: function(data) {
@@ -123,10 +140,15 @@ function HtmlTestToolViewModel()
     self.sessionList = ko.mapping.fromJS([], sessionListMapping);
     self.sessionListValid = ko.observable(false);
 
+    self.referenceList = ko.mapping.fromJS([], referenceListMapping);
+    self.referenceListValid = ko.observable(false);
+
     self.session = ko.observable(false);
     self.results = ko.mapping.fromJS([], resultsMapping);
     self.totals = ko.mapping.fromJS({ PASS:0, FAIL:0, TIMEOUT:0, ERROR:0, ALL:0 }, resultsMapping);
     self.totalResults = ko.observable(0);
+
+    self.validationId = ko.observable(false);
 
     self.fetching = ko.observable(false);
 
@@ -141,6 +163,9 @@ function HtmlTestToolViewModel()
 
     self.pageSize = ko.observable(25);
     self.pageIndex = ko.observable(1);
+
+    self.selectedReference = ko.observable(false);
+    self.selectedSession = ko.observable(false);
 
     // Derived data
     self.numPages = ko.pureComputed(function () { return Math.ceil(self.totalResults() / self.pageSize()); }, this);
@@ -206,6 +231,9 @@ function HtmlTestToolViewModel()
     self.isResults = ko.pureComputed(function () {
         return this.tab() == 'results';
     }, this);
+    self.isValidation = ko.pureComputed(function () {
+        return this.tab() == 'validation';
+    }, this);
     self.isAbout = ko.pureComputed(function () {
         return this.tab() == 'about';
     }, this);
@@ -218,6 +246,12 @@ function HtmlTestToolViewModel()
         if (self.showTimeout()) { filters.push("TIMEOUT") }
         if (self.showError()) { filters.push("ERROR") }
         return filters;
+    });
+
+    self.sessionListNamed = ko.computed(function () {
+        return ko.utils.arrayFilter(self.sessionList(), function (item) {
+            return item.name() != "";
+        });
     });
 
     // Behaviours
@@ -252,7 +286,7 @@ function HtmlTestToolViewModel()
     {
         if(self.endpoints.results)
         {
-            self.fetching(false);
+            self.fetching(true);
             $.get(self.endpoints.results, function (data)
             {
                 ko.mapping.fromJS(data.sessions, self.sessionList);
@@ -260,7 +294,24 @@ function HtmlTestToolViewModel()
                 if (fnCallback) {
                     fnCallback();
                 }
-                self.fetching(true);
+                self.fetching(false);
+            }, 'json');
+        }
+    };
+
+    self.updateReferenceList = function (fnCallback)
+    {
+        if (self.endpoints.references)
+        {
+            self.fetching(true);
+            $.get(self.endpoints.references, function (data)
+            {
+                ko.mapping.fromJS(data.references, self.referenceList);
+                self.referenceListValid(true);
+                if (fnCallback) {
+                    fnCallback();
+                }
+                self.fetching(false);
             }, 'json');
         }
     };
@@ -337,13 +388,30 @@ function HtmlTestToolViewModel()
         }
     });
 
-    self.tab.subscribe(function (newTab) 
+    self.isResults.subscribe(function (selected) 
     {
-        switch(newTab)
+        if(selected)
         {
-            case 'results':
-                self.updateSessionList();
-                break;
+            self.updateSessionList();
+        }
+        else
+        {
+            self.session(false);
+            ko.mapping.fromJS([], self.results);
+            ko.mapping.fromJS({ PASS: 0, FAIL: 0, TIMEOUT: 0, ERROR: 0, ALL: 0 }, self.totals);
+        }
+    });
+
+    self.isValidation.subscribe(function (selected) 
+    {
+        if(selected)
+        {
+            self.updateSessionList();
+            self.updateReferenceList();
+        }
+        else 
+        {
+
         }
     });
 

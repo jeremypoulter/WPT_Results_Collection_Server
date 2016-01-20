@@ -23,6 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="api.php" />
+    <Compile Include="Reference.php" />
     <Compile Include="session.php" />
     <Compile Include="templates\json.php" />
     <Compile Include="LICENSE" />
@@ -32,6 +33,7 @@
   <ItemGroup>
     <Folder Include="css\" />
     <Folder Include="js\" />
+    <Folder Include="reference\" />
     <Folder Include="templates\" />
   </ItemGroup>
   <ItemGroup>
