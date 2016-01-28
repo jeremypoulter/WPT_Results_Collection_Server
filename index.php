@@ -83,7 +83,7 @@ $results_endpoints = $http."://".$server.$port.$path;
             </p>
         </div>
 
-        <div data-bind="visible: isResults">
+        <div data-bind="visible: isResults, with: resultsViewModel">
             <div data-bind="visible: false === session()">
                 <table class="sessions">
                     <thead>
@@ -98,7 +98,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                     </thead>
                     <tbody data-bind="foreach: sessionList">
                         <tr>
-                            <td data-bind="text: id, click: $root.goToSession"></td>
+                            <td data-bind="text: id, click: $parent.goToSession"></td>
                             <td data-bind="liveEditor: name, click: name.edit">
                                 <span class="view" data-bind="text: name"></span>
                                 <input class="edit" data-bind="value: name,
@@ -106,14 +106,14 @@ $results_endpoints = $http."://".$server.$port.$path;
                                                                focus: name.editing,
                                                                event: { blur: name.stopEditing }" />
                             </td>
-                            <td data-bind="text: count, click: $root.goToSession"></td>
-                            <td data-bind="text: new Date($data.created() * 1000), click: $root.goToSession"></td>
-                            <td data-bind="text: new Date($data.modified() * 1000), click: $root.goToSession"></td>
+                            <td data-bind="text: count, click: $parent.goToSession"></td>
+                            <td data-bind="text: new Date($data.created() * 1000), click: $parent.goToSession"></td>
+                            <td data-bind="text: new Date($data.modified() * 1000), click: $parent.goToSession"></td>
                             <td>
-                                <a data-bind="click: $root.deleteSession" aria-hidden="true" aria-label="Delete">
+                                <a data-bind="click: $parent.deleteSession" aria-hidden="true" aria-label="Delete">
                                     <span class="glyphicon glyphicon-trash"></span>
                                 </a>
-                                <a data-bind="click: $root.downloadSession" aria-hidden="true" aria-label="Download">
+                                <a data-bind="click: $parent.downloadSession" aria-hidden="true" aria-label="Download">
                                     <span class="glyphicon glyphicon-download-alt"></span>
                                 </a>
                             </td>
@@ -205,8 +205,8 @@ $results_endpoints = $http."://".$server.$port.$path;
                             <a data-bind="click: function () { goToPage(pageIndex() - 1) }">&laquo;</a>
                         </li>
                         <!-- ko foreach: pages -->
-                        <li data-bind="css: { active: $data == $root.pageIndex(), disabled: '&hellip;' == $data }">
-                            <a data-bind="text: $data, click: $root.goToPage.bind($data)"></a>
+                        <li data-bind="css: { active: $data == $parent.pageIndex(), disabled: '&hellip;' == $data }">
+                            <a data-bind="text: $data, click: $parent.goToPage.bind($data)"></a>
                         </li>
                         <!-- /ko -->
                         <li data-bind="css: { disabled: pageIndex() >= numPages() }">
@@ -220,57 +220,86 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
         </div>
 
-        <div data-bind="visible: isValidation">
-            <div data-bind="visible: false === validationId()">
-                <div>
-                    <select class="form-control" data-bind="options: referenceList,
-                                                            optionsText: 'name',
-                                                            optionsValue: 'id',
-                                                            value: selectedReference,
-                                                            optionsCaption: 'Choose...'"></select>
+        <div data-bind="visible: isValidation, with: validationViewModel">
+            <div class="container" data-bind="visible: fetching">
+                <button class="btn btn-lg btn-warning center-block">
+                    <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+                    Loading...
+                </button>
+            </div>
+
+            <div data-bind="visible: !fetching()">
+                <div class="form-group">
+                    <label for="selectedreference">Select reference:</label>
+                    <select id="selectedReference" class="form-control"
+                            data-bind="options: referenceList,
+                                       optionsText: 'name',
+                                       optionsValue: 'id',
+                                       value: selectedReference,
+                                       optionsCaption: 'Choose...'"></select>
                 </div>
-                <div>
-                    <select class="form-control" data-bind="options: sessionListNamed,
-                                                        optionsText: 'name',
-                                                        optionsValue: 'id',
-                                                        value: selectedSession,
-                                                        optionsCaption: 'Choose...'"></select>
+                <div class="form-group">
+                    <label for="selectedSession">Select results:</label>
+                    <select id="selectedSession" class="form-control"
+                            data-bind="options: sessionListNamed,
+                                       optionsText: 'name',
+                                       optionsValue: 'id',
+                                       value: selectedSession,
+                                       optionsCaption: 'Choose...'"></select>
                 </div>
 
-            </div>
-        <div data-bind="visible: isAbout"></div>
-    </div>
-    <!-- /.container -->
-
-    <script type="text/html" id="DeleteSession">
-        <div class="modal fade">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Delete session <span data-bind="text: session.id()"></span></h3>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you wish to delete session <span data-bind="text: session.id()"></span>?
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
-                        <button type="button" class="btn btn-danger" data-bind="click: complete">Delete</button>
-                    </div>
+                <div data-bind="visible: selectionMade">
+                    <button class="btn btn-default" data-bind="click: startValidation">
+                        Validate Results
+                    </button>
                 </div>
             </div>
+
+            <div data-bind="text: selectionMade"></div>
+            <div data-bind="text: selectedReference"></div>
+            <div data-bind="text: selectedSession"></div>
         </div>
-    </script>
 
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="js/jquery-1.9.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/knockout-3.3.0.js"></script>
-    <script src="js/knockout.mapping-latest.js"></script>
-    <script src="js/sammy-latest.min.js"></script>
-    <script src="js/autobahn.min.js"></script>
-    <script src="js/modal.js"></script>
-    <script src="js/test_tool_manager.js" charset="UTF-8"></script>
+        <div data-bind="visible: isAbout"></div>
+        <!-- /.container -->
+
+        <script type="text/html" id="DeleteSession">
+            <div class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Delete session <span data-bind="text: session.id()"></span></h3>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you wish to delete session <span data-bind="text: session.id()"></span>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+                            <button type="button" class="btn btn-danger" data-bind="click: complete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <!-- JavaScript
+             ================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="js/jquery-1.9.1.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/knockout-3.3.0.js"></script>
+        <script src="js/knockout.mapping-latest.js"></script>
+        <script src="js/sammy-latest.min.js"></script>
+        <script src="js/autobahn.min.js"></script>
+        <script src="js/modal.js"></script>
+        <script src="js/LiveEditor.js" charset="UTF-8"></script>
+        <script src="js/DeleteSessionViewModel.js" charset="UTF-8"></script>
+        <script src="js/TestReferenceViewModel.js" charset="UTF-8"></script>
+        <script src="js/TestResultsViewModel.js" charset="UTF-8"></script>
+        <script src="js/TestSessionViewModel.js" charset="UTF-8"></script>
+        <script src="js/ValidationViewModel.js" charset="UTF-8"></script>
+        <script src="js/ResultsViewModel.js" charset="UTF-8"></script>
+        <script src="js/test_tool_manager.js" charset="UTF-8"></script>
+    </div>
 </body>
 </html>

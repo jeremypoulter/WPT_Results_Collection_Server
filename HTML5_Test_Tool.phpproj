@@ -24,7 +24,7 @@
   <ItemGroup>
     <Compile Include="api.php" />
     <Compile Include="Reference.php" />
-    <Compile Include="session.php" />
+    <Compile Include="Session.php" />
     <Compile Include="templates\json.php" />
     <Compile Include="LICENSE" />
     <Compile Include="logo.svg" />
@@ -45,14 +45,21 @@
     <Content Include="index.php" />
     <Content Include="js\autobahn.js" />
     <Content Include="js\autobahn.min.js" />
+    <Content Include="js\DeleteSessionViewModel.js" />
     <Content Include="js\knockout-3.3.0.debug.js" />
     <Content Include="js\knockout-3.3.0.js" />
     <Content Include="js\knockout.mapping-latest.debug.js" />
     <Content Include="js\knockout.mapping-latest.js" />
+    <Content Include="js\LiveEditor.js" />
     <Content Include="js\modal.js" />
+    <Content Include="js\ResultsViewModel.js" />
     <Content Include="js\sammy-latest.min.js" />
     <Content Include="js\sammy.js" />
+    <Content Include="js\TestReferenceViewModel.js" />
+    <Content Include="js\TestResultsViewModel.js" />
+    <Content Include="js\TestSessionViewModel.js" />
     <Content Include="js\test_tool_manager.js" />
+    <Content Include="js\ValidationViewModel.js" />
     <Content Include="packages.config" />
     <Content Include="js\bootstrap.js" />
     <Content Include="js\bootstrap.min.js" />
