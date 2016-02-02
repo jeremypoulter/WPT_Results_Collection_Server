@@ -29,6 +29,7 @@
     <Compile Include="LICENSE" />
     <Compile Include="logo.svg" />
     <Compile Include="README.md" />
+    <Compile Include="ValidationReport.php" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="css\" />

@@ -19,7 +19,7 @@ class Session
         $this->loadState();
     }
 
-    public function getResults($filterString, $pageIndex, $pageSize)
+    public function getResults($filterString = null, $pageIndex = null, $pageSize = null)
     {
         $results = array();
 

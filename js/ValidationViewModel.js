@@ -58,7 +58,17 @@ function ValidationViewModel(appViewModel, resultsViewModel)
 
     self.startValidation = function()
     {
-
+        if (appViewModel.endpoints.reports)
+        {
+            self.fetching(true);
+            $.post(appViewModel.endpoints.reports, {
+                session: self.selectedSession(),
+                reference: self.selectedReference()
+            }, function (data)
+            {
+                self.fetching(false);
+            }, 'json');
+        }
     }
 
     appViewModel.isValidation.subscribe(function (selected)

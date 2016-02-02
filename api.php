@@ -6,8 +6,9 @@
 
 require 'vendor/autoload.php';
 
-require 'session.php';
-require 'reference.php';
+require 'Session.php';
+require 'Reference.php';
+require 'ValidationReport.php';
 
 error_reporting(E_ALL);
 ini_set('memory_limit', -1);
@@ -18,11 +19,9 @@ header("Access-Control-Allow-Headers: Content-Type");
 // Configuration
 define('DATA_DIR', dirname(__FILE__).'/data');
 define('SESSION_DIR', DATA_DIR.'/results');
+define('VALIDATION_REPORT_DIR', DATA_DIR.'/reports');
 define('STATUS_FILE', DATA_DIR.'/status');
 define('REFERENCE_DIR', dirname(__FILE__).'/reference');
-
-// State
-$found = false;
 
 // Make sure our data/session dir is setup correctly
 if(!file_exists(DATA_DIR)) {
@@ -33,17 +32,34 @@ if(!file_exists(SESSION_DIR)) {
     mkdir(SESSION_DIR);
 }
 
+if(!file_exists(VALIDATION_REPORT_DIR)) {
+    mkdir(VALIDATION_REPORT_DIR);
+}
+
 if(!file_exists(REFERENCE_DIR)) {
     throw new Exception("Reference results dir '".REFERENCE_DIR."' not found");
 }
 
 // Load our status
-if(file_exists(STATUS_FILE)) {
+if(file_exists(STATUS_FILE)) 
+{
     $status = json_decode(file_get_contents(STATUS_FILE), true);
     $statusModified = false;
-} else  {
+
+    // Bit of backward compatability
+    if(array_key_exists('count', $status)) 
+    {
+        $statusModified = true;
+        $status['results'] = $status['count'];
+        $status['reports'] = 0;
+        unset($status['count']);
+    }
+} 
+else  
+{
     $status = array(
-        'count' => 0
+        'results' => 0,
+        'reports' => 0
     );
     $statusModified = true;
 }
@@ -59,8 +75,8 @@ $app->group('/results', function() use ($app)
     {
         global $status, $statusModified;
         // Create a new session
-        $session = Session::createSession($status['count']);
-        $status['count']++;
+        $session = Session::createSession($status['results']);
+        $status['results']++;
         $statusModified = true;
         $sessionInfo = $session->getInfo();
         $sessionInfo['href'] = $app->urlFor('results', array('id' => $session->id));
@@ -216,13 +232,92 @@ $app->group('/references', function() use ($app)
     })->name('references');
 
 });
-    $app->get('/', function () use ($app)  {
+$app->group('/reports', function() use ($app)
+{
+    $app->post('/', function () use ($app)
+    {
+        global $status, $statusModified;
+        // Create a new session
+        $report = ValidationReport::newReport($status['reports'], 
+                                              $app->request()->params('session'), 
+                                              $app->request()->params('reference'));
+        $status['reports']++;
+        $statusModified = true;
+        $reportInfo = $report->getInfo();
+        $reportInfo['href'] = $app->urlFor('reports', array('id' => $report->id));
+        Notify(array(
+            'action' => 'create',
+            'report' => $reportInfo
+        ));
+        $app->render(200,array(
+            'report' => $reportInfo
+        ));
+    });
+    $app->get('/', function () use ($app)
+    {
+        $reports = array();
+
+        if ($dh = opendir(VALIDATION_REPORT_DIR))
+        {
+            while (($file = readdir($dh)) !== false)
+            {
+                if(ValidationReport::isValidValidationReport($file))
+                {
+                    $report = new ValidationReport($file);
+                    $reportInfo = $report->getInfo();
+                    $reportInfo['href'] = $app->urlFor('reports', array('id' => $file));
+                    array_push($reports, $reportInfo);
+                }
+            }
+            closedir($dh);
+        }
+
+        usort($reports, function ($a, $b) {
+            return $a['id'] - $b['id'];
+        });
+
+        $app->render(200, array(
+            'reports' => $reports
+        ));
+    })->name('reportIndex');
+    $app->get('/:id', function ($id) use($app)
+    {
+        $report = new ValidationReport($id);
+        $download = $app->request()->params('download');
+        if(null != $download && $download) {
+            header("Content-Disposition: attachment; filename=\"$id.json\"");
+        }
+
+        $app->render(200, $report->GetReport($app->request()->params('filters'),
+                                             $app->request()->params('pageIndex'),
+                                             $app->request()->params('pageSize')));
+    })->name('reports');
+    $app->delete('/:id', function ($id) use($app)
+    {
+        $report = new ValidationReport($id);
+        $report->delete();
+        Notify(array(
+            'action' => 'delete',
+            'report' => $id,
+        ));
+        $app->render(200, array());
+    });
+    $app->options('/:param+', function ($param) use($app) {
+        $app->render(200, array());
+    });
+});
+$app->get('/', function () use ($app)  
+{
     global $status, $statusModified;
     $app->render(200, array_merge($status, array(
         'links' => array(
             array(
-                'rel' => 'results', 
+                'rel' => 'results',
                 'href' => $app->urlFor('resultIndex')
+            ),
+            array(
+                'rel' => 'reports',
+                'href' => $app->urlFor('reportIndex')
             ),
             array(
                 'rel' => 'references',
