@@ -292,6 +292,24 @@ $app->group('/reports', function() use ($app)
                                              $app->request()->params('pageIndex'),
                                              $app->request()->params('pageSize')));
     })->name('reports');
+    $app->post('/:id', function ($id) use($app)
+    {
+        $report = new ValidationReport($id);
+        $result = json_decode($app->request->getBody(), true);
+        if(false != $result)
+        {
+            if(array_key_exists('name', $result))
+            {
+                $index = $report->setName($result['name']);
+                $app->render(200, array());
+            }
+        } else {
+            $app->render(400, array(
+                'error' => true,
+                'msg'   => 'Not JSON',
+            ));
+        }
+    });
     $app->delete('/:id', function ($id) use($app)
     {
         $report = new ValidationReport($id);
