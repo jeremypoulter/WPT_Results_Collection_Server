@@ -229,35 +229,113 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
 
             <div data-bind="visible: !fetching()">
-                <div class="form-group">
-                    <label for="selectedreference">Select reference:</label>
-                    <select id="selectedReference" class="form-control"
-                            data-bind="options: referenceList,
-                                       optionsText: 'name',
-                                       optionsValue: 'id',
-                                       value: selectedReference,
-                                       optionsCaption: 'Choose...'"></select>
-                </div>
-                <div class="form-group">
-                    <label for="selectedSession">Select results:</label>
-                    <select id="selectedSession" class="form-control"
-                            data-bind="options: sessionListNamed,
-                                       optionsText: 'name',
-                                       optionsValue: 'id',
-                                       value: selectedSession,
-                                       optionsCaption: 'Choose...'"></select>
+                <div data-bind="visible: false === report()">
+                    <table class="reportList">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Created</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: reportList">
+                            <tr>
+                                <td data-bind="text: id, click: $parent.goToReport"></td>
+                                <td data-bind="liveEditor: name, click: name.edit">
+                                    <span class="view" data-bind="text: name"></span>
+                                    <input class="edit" data-bind="value: name,
+                                                               executeOnEnter: name.stopEditing,
+                                                               focus: name.editing,
+                                                               event: { blur: name.stopEditing }" />
+                                </td>
+                                <td data-bind="text: new Date($data.created() * 1000), click: $parent.goToReport"></td>
+                                <td>
+                                    <a data-bind="click: $parent.deleteReport" aria-hidden="true" aria-label="Delete">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
+                                    <a data-bind="click: $parent.downloadReport" aria-hidden="true" aria-label="Download">
+                                        <span class="glyphicon glyphicon-download-alt"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div>
+                        <button class="btn btn-default" type="button" data-bind="click: newReport">New Report</button>
+                    </div>
                 </div>
 
-                <div data-bind="visible: selectionMade">
-                    <button class="btn btn-default" data-bind="click: startValidation">
-                        Validate Results
-                    </button>
+                <div data-bind="visible: report">
+                    <p>
+                        Report:
+                        <span data-bind="text: report"></span>
+                    </p>
+
+                    <table class='table resultsSummary'>
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Tests not run</th>
+                                <th>Subtests not run</th>
+                                <th>Tests failed</th>
+                                <th>Subtests failed</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td data-bind="text: totalTestsNotRun"></td>
+                                <td data-bind="text: totalSubtestsNotRun"></td>
+                                <td data-bind="text: totalTestsFailed"></td>
+                                <td data-bind="text: totalSubtestsFailed"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="reportLog" data-bind="visible: !fetching()">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Test</th>
+                                <th>Subtest</th>
+                                <th>Message</th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: log">
+                            <tr>
+                                <td data-bind="text: type"></td>
+                                <td data-bind="text: test"></td>
+                                <td data-bind="text: subtest"></td>
+                                <td data-bind="text: message"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="row pull-right">
+                        <ul class="pagination">
+                            <li data-bind="css: { disabled: pageIndex() <= 1 }">
+                                <a data-bind="click: function () { goToPage(1) }">|&laquo;</a>
+                            </li>
+                            <li data-bind="css: { disabled: pageIndex() <= 1 }">
+                                <a data-bind="click: function () { goToPage(pageIndex() - 1) }">&laquo;</a>
+                            </li>
+                            <!-- ko foreach: pages -->
+                            <li data-bind="css: { active: $data == $parent.pageIndex(), disabled: '&hellip;' == $data }">
+                                <a data-bind="text: $data, click: $parent.goToPage.bind($data)"></a>
+                            </li>
+                            <!-- /ko -->
+                            <li data-bind="css: { disabled: pageIndex() >= numPages() }">
+                                <a data-bind="click: function () { goToPage(pageIndex() + 1) }">&raquo;</a>
+                            </li>
+                            <li data-bind="css: { disabled: pageIndex() >= numPages() }">
+                                <a data-bind="click: function () { goToPage(numPages()) }">&raquo;|</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
-            <div data-bind="text: selectionMade"></div>
-            <div data-bind="text: selectedReference"></div>
-            <div data-bind="text: selectedSession"></div>
         </div>
 
         <div data-bind="visible: isAbout"></div>
@@ -268,10 +346,10 @@ $results_endpoints = $http."://".$server.$port.$path;
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h3>Delete session <span data-bind="text: session.id()"></span></h3>
+                            <h3>Delete session <span data-bind="text: object.id()"></span></h3>
                         </div>
                         <div class="modal-body">
-                            Are you sure you wish to delete session <span data-bind="text: session.id()"></span>?
+                            Are you sure you wish to delete session <span data-bind="text: object.id()"></span>?
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
@@ -282,9 +360,73 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
         </script>
 
+        <script type="text/html" id="DeleteReport">
+            <div class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Delete report <span data-bind="text: object.id()"></span></h3>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you wish to delete report <span data-bind="text: object.id()"></span>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+                            <button type="button" class="btn btn-danger" data-bind="click: complete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/html" id="NewReport">
+            <div class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Create Report</h3>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="selectedreference">Select reference:</label>
+                                <select id="selectedReference" class="form-control"
+                                        data-bind="options: referenceList,
+                                                           optionsText: 'name',
+                                                           optionsValue: 'id',
+                                                           value: selectedReference,
+                                                           optionsCaption: 'Choose...'"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="selectedSession">Select results:</label>
+                                <select id="selectedSession" class="form-control"
+                                        data-bind="options: sessionListNamed,
+                                                           optionsText: 'name',
+                                                           optionsValue: 'id',
+                                                           value: selectedSession,
+                                                           optionsCaption: 'Choose...'"></select>
+                            </div>
+
+                            <div>
+                                <div data-bind="text: selectionMade"></div>
+                                <div data-bind="text: selectedReference"></div>
+                                <div data-bind="text: selectedSession"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bind="click: complete, enable: selectionMade">
+                                Validate Results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
         <!-- JavaScript
              ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
+
         <script src="js/jquery-1.9.1.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
         <script src="js/knockout-3.3.0.js"></script>
@@ -292,11 +434,15 @@ $results_endpoints = $http."://".$server.$port.$path;
         <script src="js/sammy-latest.min.js"></script>
         <script src="js/autobahn.min.js"></script>
         <script src="js/modal.js"></script>
+
         <script src="js/LiveEditor.js" charset="UTF-8"></script>
-        <script src="js/DeleteSessionViewModel.js" charset="UTF-8"></script>
+        <script src="js/DeleteViewModel.js" charset="UTF-8"></script>
+        <script src="js/NewReportViewModel.js" charset="UTF-8"></script>
         <script src="js/TestReferenceViewModel.js" charset="UTF-8"></script>
         <script src="js/TestResultsViewModel.js" charset="UTF-8"></script>
         <script src="js/TestSessionViewModel.js" charset="UTF-8"></script>
+        <script src="js/TestReportListViewModel.js" charset="UTF-8"></script>
+        <script src="js/TestReportViewModel.js" charset="UTF-8"></script>
         <script src="js/ValidationViewModel.js" charset="UTF-8"></script>
         <script src="js/ResultsViewModel.js" charset="UTF-8"></script>
         <script src="js/test_tool_manager.js" charset="UTF-8"></script>

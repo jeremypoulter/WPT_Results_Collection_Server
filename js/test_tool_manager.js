@@ -37,7 +37,12 @@ function HtmlTestToolViewModel()
         console.log(topic);
         console.log(data);
 
-        self.resultsViewModel().on_server_event(topic, data);
+        if (data.session) {
+            self.resultsViewModel().on_server_event(topic, data);
+        }
+        if (data.report) {
+            self.validationViewModel().on_server_event(topic, data);
+        }
     };
 
     // Tab View models
@@ -50,11 +55,17 @@ function HtmlTestToolViewModel()
         this.get('#:tab', function () {
             self.tab(this.params.tab);
             self.resultsViewModel().session(false);
+            self.validationViewModel().report(false);
         });
 
         this.get('#results/:sessionId', function () {
             self.tab('results');
             self.resultsViewModel().session(this.params.sessionId);
+        });
+
+        this.get('#validation/:reportId', function () {
+            self.tab('validation');
+            self.validationViewModel().report(this.params.reportId);
         });
 
         this.get('', function () {

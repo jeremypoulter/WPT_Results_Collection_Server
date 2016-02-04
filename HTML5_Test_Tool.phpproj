@@ -46,7 +46,8 @@
     <Content Include="index.php" />
     <Content Include="js\autobahn.js" />
     <Content Include="js\autobahn.min.js" />
-    <Content Include="js\DeleteSessionViewModel.js" />
+    <Content Include="js\NewReportViewModel.js" />
+    <Content Include="js\DeleteViewModel.js" />
     <Content Include="js\knockout-3.3.0.debug.js" />
     <Content Include="js\knockout-3.3.0.js" />
     <Content Include="js\knockout.mapping-latest.debug.js" />
@@ -57,6 +58,8 @@
     <Content Include="js\sammy-latest.min.js" />
     <Content Include="js\sammy.js" />
     <Content Include="js\TestReferenceViewModel.js" />
+    <Content Include="js\TestReportListViewModel.js" />
+    <Content Include="js\TestReportViewModel.js" />
     <Content Include="js\TestResultsViewModel.js" />
     <Content Include="js\TestSessionViewModel.js" />
     <Content Include="js\test_tool_manager.js" />

@@ -115,7 +115,7 @@ function ResultsViewModel(appViewModel)
     self.deleteSession = function (session)
     {
         showModal({
-            viewModel: new DeleteSessionViewModel(session),
+            viewModel: new DeleteViewModel(session, 'DeleteSession'),
             context: this // Set context so we don't need to bind the callback function
         }).then(function (result) {
             $.ajax({

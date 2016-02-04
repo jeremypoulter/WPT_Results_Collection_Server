@@ -21,12 +21,10 @@ class ValidationReport
 
     public function getReport($filterString = null, $pageIndex = null, $pageSize = null)
     {
-        $totalTests = 0;
-        $totalResults = 0;
-
         $filters = (null !== $filterString) ? explode(',', $filterString) : self::$statusTypes;
 
         $report = json_decode(file_get_contents($this->dir.'/report'), true);
+        $log_total = count ($report);
 
 /*
         usort($report, function ($a, $b) {
@@ -38,7 +36,14 @@ class ValidationReport
             $report = array_slice($report, ($pageIndex - 1) * $pageSize, $pageSize);
         }
 
-        return array('report' => $report);
+        return array('report' => $report,
+                     'totals' => array(
+                          'tests_not_run' => $this->status['tests_not_run'],
+                          'subtests_not_run' => $this->status['subtests_not_run'],
+                          'tests_failed' => $this->status['tests_failed'],
+                          'subtests_failed' => $this->status['subtests_failed'],
+                          'log_total' => $log_total
+                     ));
     }
 
     public function getName()
