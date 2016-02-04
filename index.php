@@ -405,13 +405,8 @@ $results_endpoints = $http."://".$server.$port.$path;
                                                            value: selectedSession,
                                                            optionsCaption: 'Choose...'"></select>
                             </div>
-
-                            <div>
-                                <div data-bind="text: selectionMade"></div>
-                                <div data-bind="text: selectedReference"></div>
-                                <div data-bind="text: selectedSession"></div>
-                            </div>
                         </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
                             <button type="button" class="btn btn-primary" data-bind="click: complete, enable: selectionMade">
