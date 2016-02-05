@@ -36,7 +36,9 @@ class ValidationReport
             $report = array_slice($report, ($pageIndex - 1) * $pageSize, $pageSize);
         }
 
-        return array('report' => $report,
+        return array('session' => $this->status['session'],
+                     'reference' => $this->status['reference'],
+                     'report' => $report,
                      'totals' => array(
                           'tests_not_run' => $this->status['tests_not_run'],
                           'subtests_not_run' => $this->status['subtests_not_run'],
@@ -80,7 +82,8 @@ class ValidationReport
             'rel' => 'report',
             'id' => $this->id,
             'name' => $this->getName(),
-            'tests_not_run' => $this->status['tests_not_run'],
+            'session' => $this->status['session'],
+            'reference' => $this->status['reference'],
             'subtests_not_run' => $this->status['subtests_not_run'],
             'tests_failed' => $this->status['tests_failed'],
             'subtests_failed' => $this->status['subtests_failed'],
@@ -141,6 +144,15 @@ class ValidationReport
         return $test[0];
     }
 
+    private static function getSubtestName(&$subtest)
+    {
+        return str_replace(array('web-platform.test:8000',
+                                 'WEB-PLATFORM.TEST:8000'),
+                           array('w3c-test.org',
+                                 'W3C-TEST.ORG'),
+                           $subtest['name']);
+    }
+
     public static function newReport($id, $sessionId, $referenceId)
     {
         if(false === Session::isValidSession($sessionId)) {
@@ -174,16 +186,15 @@ class ValidationReport
                 $sessionResults['tests'][$testName] = array();
             }
 
+            $testId = $test['id'];
+            $sessionResults['tests'][$testName][$testId] = array();
+
             foreach ($test['subtests'] as $subtest) 
             {
-                $subtestName = str_replace(array('web-platform.test:8000',
-                                                 'WEB-PLATFORM.TEST:8000'),
-                                           array('w3c-test.org',
-                                                 'W3C-TEST.ORG'),
-                               $subtest['name']);
+                $subtestName = ValidationReport::getSubtestName($subtest);
 
                 // Update the results
-                $sessionResults['tests'][$testName][$subtestName] = $subtest['status'];
+                $sessionResults['tests'][$testName][$testId][$subtestName] = $subtest['status'];
             }
         }
 
@@ -197,14 +208,14 @@ class ValidationReport
         // Work through each test
         foreach ($referenceResults['results'] as $test)
         {
-
             $testName = ValidationReport::getTestName($test['test']);
             if(!array_key_exists($testName, $sessionResults['tests'])) 
             {
                 array_push($log, array(
                     'type' => 'error',
                     'message' => 'FAILURE - TEST NOT RUN',
-                    'test' => $testName
+                    'test' => $testName,
+                    'reference_test_id' => $test['id']
                 ));
                 
                 $testsNotRun++;
@@ -216,29 +227,37 @@ class ValidationReport
 
             foreach ($test['subtests'] as $subtest) 
             {
-                $subtestName = str_replace(array('web-platform.test:8000',
-                                                 'WEB-PLATFORM.TEST:8000'),
-                                           array('w3c-test.org',
-                                                 'W3C-TEST.ORG'),
-                               $subtest['name']);
+                $subtestName = ValidationReport::getSubtestName($subtest);
 
                 // Check the passed tests
                 if ($subtest['status'] === "PASS") 
                 {
-                    if(!array_key_exists($subtestName, $sessionResults['tests'][$testName])) 
+                    $testRun = false;
+                    foreach($sessionResults['tests'][$testName] as $testId => $subtestList)
+                    {
+                        if(array_key_exists($subtestName, $subtestList)) 
+                        {
+                            $testRun = $testId;
+                            break;
+                        }
+                    }
+                    
+                    if(false === $testRun)
                     {
                         array_push($log, array(
                             'type' => 'error',
                             'message' => 'FAILURE - SUBTEST NOT RUN',
                             'test' => $testName,
-                            'subtest' => $subtestName
+                            'subtest' => $subtestName, 
+                            'reference_test_id' => $test['id'],
+                            'test_ids' => array_keys($sessionResults['tests'][$testName])
                         ));
 
                         $subtestsNotRun++;
                         continue;
                     }
 
-                    if ($sessionResults['tests'][$testName][$subtestName] === "PASS") {
+                    if ($sessionResults['tests'][$testName][$testRun][$subtestName] === "PASS") {
                         //fprintf(STDOUT, "  PASS: %s /  %s\n", $testName, $subtestName);
                     } 
                     else 
@@ -247,7 +266,9 @@ class ValidationReport
                             'type' => 'error',
                             'message' => 'FAILURE - SUBTEST FAILED',
                             'test' => $testName,
-                            'subtest' => $subtestName
+                            'subtest' => $subtestName,
+                            'reference_test_id' => $test['id'],
+                            'test_id' => $testRun,
                         ));
 
                         $subtestsFailed++;
@@ -262,10 +283,13 @@ class ValidationReport
         }
 
         $status = array(
+            'session' => $sessionId,
+            'reference' => $referenceId,
             'tests_not_run' => $testsNotRun,
             'subtests_not_run' => $subtestsNotRun,
             'tests_failed' => $testsFailed,
-            'subtests_failed' => $subtestsFailed
+            'subtests_failed' => $subtestsFailed,
+            'log_total' => count($log)
         );
 
         file_put_contents($dir.'/status', json_encode($status));
@@ -297,49 +321,6 @@ class ValidationReport
 
         $this->lock = false;
         unlink($this->dir.'/lock');
-    }
-
-    static private function &createStatsArray()
-    {
-        $stats = array();
-        foreach(self::$statusTypes as $type) {
-            $stats[$type] = 0;
-        }
-        $stats['ALL'] = 0;
-
-        return $stats;
-    }
-
-    private function updateTestStats(&$result, &$totals)
-    {
-        $result['time'] = microtime(true);
-
-        $status = 'PASS';
-        $subTotals = self::createStatsArray();
-
-        switch ($result['status'])
-        {
-            case "OK":
-                foreach($result['subtests'] as $item)
-                {
-                    if ('PASS' != $item['status']) {
-                        $status = $item['status'];
-                    }
-                    $subTotals[$item['status']]++;
-                }
-                break;
-            default:
-                $status = $result['status'];
-                $subTotals[$result['status']]++;
-        }
-
-        $subTotals['ALL'] = count($result['subtests']);
-        $result['totals'] = $subTotals;
-        $result['result'] = $status;
-
-        foreach(array_keys($totals) as $key) {
-            $totals[$key] += $subTotals[$key];
-        }
     }
 }
 
