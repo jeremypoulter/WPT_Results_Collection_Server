@@ -6,4 +6,9 @@ function TestReferenceViewModel(data)
     // Data
     var self = this;
     ko.mapping.fromJS(data, {}, self);
+
+    self.name.subscribe(function (value) {
+        $.post(self.href(), JSON.stringify({ name: value }), function () {
+        });
+    });
 }

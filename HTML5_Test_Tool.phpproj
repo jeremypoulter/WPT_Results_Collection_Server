@@ -7,13 +7,18 @@
     <RootNamespace>HTML5_Test_Tool</RootNamespace>
     <OutputType>Library</OutputType>
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
-    <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+    <SaveServerSettingsInUserFile>false</SaveServerSettingsInUserFile>
     <Server>PHPDev</Server>
     <PublishEvent>None</PublishEvent>
-    <PHPDevAutoPort>True</PHPDevAutoPort>
+    <PHPDevAutoPort>true</PHPDevAutoPort>
     <PHPDevPort>35127</PHPDevPort>
     <PHPDevHostName>localhost</PHPDevHostName>
     <IISProjectUrl>http://localhost:35127/</IISProjectUrl>
+    <SpecificPageValue>index.php</SpecificPageValue>
+    <StartAction>SpecificPage</StartAction>
+    <Runtime>PHP</Runtime>
+    <RuntimeVersion>5.6</RuntimeVersion>
+    <EnvName>PHPDev</EnvName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <IncludeDebugInformation>true</IncludeDebugInformation>
@@ -24,6 +29,7 @@
   <ItemGroup>
     <Compile Include="api.php" />
     <Compile Include="Reference.php" />
+    <Compile Include="ResultSupport.php" />
     <Compile Include="Session.php" />
     <Compile Include="templates\json.php" />
     <Compile Include="LICENSE" />
@@ -39,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="composer.json" />
+    <Content Include="config.json" />
     <Content Include="css\bootstrap.css" />
     <Content Include="css\bootstrap.css.map" />
     <Content Include="css\bootstrap.min.css" />
@@ -46,6 +53,7 @@
     <Content Include="index.php" />
     <Content Include="js\autobahn.js" />
     <Content Include="js\autobahn.min.js" />
+    <Content Include="js\NewReferenceViewModel.js" />
     <Content Include="js\NewReportViewModel.js" />
     <Content Include="js\DeleteViewModel.js" />
     <Content Include="js\knockout-3.3.0.debug.js" />

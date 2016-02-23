@@ -76,11 +76,36 @@ $results_endpoints = $http."://".$server.$port.$path;
     <div class="container tab-content">
         <div class="starter-template" data-bind="visible: isHome">
             <h1>DLNA HTML5 Test Tools</h1>
+            <div class="alert alert-danger" data-bind="visible:config.admin" role="alert">
+                <strong>Warning!</strong> Admin enabled
+            </div>
             <p class="lead">
-                Use this document as a way to quickly start any new project.
-                <br />
-                All you get is this text and a mostly barebones HTML document.
+                Welcome to the DLNA HTML 5 Test Tool.
             </p>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Results</h3>
+                        </div>
+                        <div class="panel-body">
+                            Panel content
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Reports</h3>
+                        </div>
+                        <div class="panel-body">
+                            Panel content
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div data-bind="visible: isResults, with: resultsViewModel">
@@ -265,6 +290,42 @@ $results_endpoints = $http."://".$server.$port.$path;
                     <div>
                         <button class="btn btn-default" type="button" data-bind="click: newReport">New Report</button>
                     </div>
+
+                    <table class="reportList" data-bind="visible: $root.config.admin">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Created</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: referenceList">
+                            <tr>
+                                <td data-bind="text: id"></td>
+                                <td data-bind="liveEditor: name, click: name.edit">
+                                    <span class="view" data-bind="text: name"></span>
+                                    <input class="edit" data-bind="value: name,
+                                                               executeOnEnter: name.stopEditing,
+                                                               focus: name.editing,
+                                                               event: { blur: name.stopEditing }" />
+                                </td>
+                                <td data-bind="text: new Date($data.created() * 1000)"></td>
+                                <td>
+                                    <a data-bind="click: $parent.deleteReference" aria-hidden="true" aria-label="Delete">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
+                                    <a data-bind="click: $parent.downloadReference" aria-hidden="true" aria-label="Download">
+                                        <span class="glyphicon glyphicon-download-alt"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div>
+                        <button class="btn btn-default" type="button" data-bind="click: newReference, visible: $root.config.admin">New Reference</button>
+                    </div>
                 </div>
 
                 <div data-bind="visible: report">
@@ -379,6 +440,25 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
         </script>
 
+        <script type="text/html" id="DeleteReference">
+            <div class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Delete reference <span data-bind="text: object.id()"></span></h3>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you wish to delete reference <span data-bind="text: object.id()"></span>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+                            <button type="button" class="btn btn-danger" data-bind="click: complete">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
         <script type="text/html" id="NewReport">
             <div class="modal fade">
                 <div class="modal-dialog">
@@ -418,6 +498,69 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
         </script>
 
+        <script type="text/html" id="NewReference">
+            <div class="modal fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Create Reference</h3>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="nameInput">Name:</label>
+                                    <input type="text" class="form-control" id="nameInput" placeholder="Name" data-bind="value: name">
+                                </div>
+                            </form>
+
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Name</th>
+                                        <th>Count</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: selectedSessions">
+                                    <tr>
+                                        <td data-bind="text: id"></td>
+                                        <td data-bind="text: name"></td>
+                                        <td data-bind="text: count"></td>
+                                        <td>
+                                            <a data-bind="click: $parent.removeSessionFromList" aria-hidden="true" aria-label="Remove">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <form class="form-inline">
+                                <div class="form-group">
+                                    <label for="addSession">Select results:</label>
+                                    <select id="addSession" class="form-control"
+                                            data-bind="options: sessionListNamed,
+                                                               optionsText: 'name',
+                                                               optionsValue: 'id',
+                                                               value: addSession,
+                                                               optionsCaption: 'Choose...'"></select>
+                                </div>
+                                <button type="button" class="btn btn-default" data-bind="click: addSessionToList">Add</button>
+                            </form>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+                            <button type="button" class="btn btn-primary" data-bind="click: complete, enable: selectionMade">
+                                Create reference results
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
         <!-- JavaScript
              ================================================== -->
         <!-- Placed at the end of the document so the pages load faster -->
@@ -433,6 +576,7 @@ $results_endpoints = $http."://".$server.$port.$path;
         <script src="js/LiveEditor.js" charset="UTF-8"></script>
         <script src="js/DeleteViewModel.js" charset="UTF-8"></script>
         <script src="js/NewReportViewModel.js" charset="UTF-8"></script>
+        <script src="js/NewReferenceViewModel.js" charset="UTF-8"></script>
         <script src="js/TestReferenceViewModel.js" charset="UTF-8"></script>
         <script src="js/TestResultsViewModel.js" charset="UTF-8"></script>
         <script src="js/TestSessionViewModel.js" charset="UTF-8"></script>

@@ -14,6 +14,8 @@ function HtmlTestToolViewModel()
 
     self.tab = ko.observable(null);
 
+    self.config = ko.mapping.fromJS({admin: false});
+
     // Derived data
     self.isHome = ko.pureComputed(function () {
         return this.tab() == 'home';
@@ -40,7 +42,7 @@ function HtmlTestToolViewModel()
         if (data.session) {
             self.resultsViewModel().on_server_event(topic, data);
         }
-        if (data.report) {
+        if (data.report || data.reference) {
             self.validationViewModel().on_server_event(topic, data);
         }
     };
@@ -84,6 +86,12 @@ function HtmlTestToolViewModel()
         },
         { 'skipSubprotocolCheck': true }
     );
+
+    // Get the config
+    $.get("config.json", function (data)
+    {
+        ko.mapping.fromJS(data, self.config);
+    }, 'json');
 
     // Get the endpoints
     $.get("api.php", function (data)

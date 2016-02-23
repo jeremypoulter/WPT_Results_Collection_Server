@@ -9,6 +9,7 @@ require 'vendor/autoload.php';
 require 'Session.php';
 require 'Reference.php';
 require 'ValidationReport.php';
+require 'ResultSupport.php';
 
 error_reporting(E_ALL);
 ini_set('memory_limit', -1);
@@ -62,6 +63,23 @@ else
         'reports' => 0
     );
     $statusModified = true;
+}
+if(!array_key_exists('reference', $status))
+{
+    $ref = 0;
+    if ($dh = opendir(REFERENCE_DIR))
+    {
+        while (($file = readdir($dh)) !== false)
+        {
+            if(Reference::isValidResults($file) && (int)$file >= $ref) {
+                $ref = (int)$file + 1;
+            }
+        }
+        closedir($dh);
+    }
+
+    $statusModified = true;
+    $status['reference'] = $ref;
 }
 
 $app = new \Slim\Slim();
@@ -120,7 +138,7 @@ $app->group('/results', function() use ($app)
         $session = new Session($id);
         $download = $app->request()->params('download');
         if(null != $download && $download) {
-            header("Content-Disposition: attachment; filename=\"$id.json\"");
+            header("Content-Disposition: attachment; filename=\"result-$id.json\"");
         }
         
         $app->render(200, $session->GetResults($app->request()->params('filters'), 
@@ -218,19 +236,67 @@ $app->group('/references', function() use ($app)
             'references' => $references
         ));
     })->name('referenceIndex');
+    $app->post('/', function () use ($app)
+    {
+        global $status, $statusModified;
+
+        // Create a new session
+        $reference = Reference::createReference($status['reference'], 
+                                                $app->request()->params('sessions'),
+                                                $app->request()->params('name'),
+                                                $app->request()->params('minPass'));
+        $status['reference']++;
+        $statusModified = true;
+        $referenceInfo = $reference->getInfo();
+        $referenceInfo['href'] = $app->urlFor('references', array('id' => $referenceInfo['id']));
+        Notify(array(
+            'action' => 'create',
+            'reference' => $referenceInfo
+        ));
+        $app->render(200,array(
+            'reference' => $referenceInfo
+        ));
+    });
     $app->get('/:id', function ($id) use($app)
     {
         $reference = new Reference($id);
         $download = $app->request()->params('download');
         if(null != $download && $download) {
-            header("Content-Disposition: attachment; filename=\"$id.json\"");
+            header("Content-Disposition: attachment; filename=\"reference-$id.json\"");
         }
 
         $app->render(200, $reference->GetResults($app->request()->params('filters'),
                                                  $app->request()->params('pageIndex'),
                                                  $app->request()->params('pageSize')));
     })->name('references');
-
+    $app->post('/:id', function ($id) use($app)
+    {
+        $reference = new Reference($id);
+        $result = json_decode($app->request->getBody(), true);
+        if(false != $result)
+        {
+            if(array_key_exists('name', $result))
+            {
+                $index = $reference->setName($result['name']);
+                $app->render(200, array());
+            }
+        } else {
+            $app->render(400, array(
+                'error' => true,
+                'msg'   => 'Not JSON',
+            ));
+        }
+    });
+    $app->delete('/:id', function ($id) use($app)
+    {
+        $reference = new Reference($id);
+        $reference->delete();
+        Notify(array(
+            'action' => 'delete',
+            'reference' => $id,
+        ));
+        $app->render(200, array());
+    });
 });
 $app->group('/reports', function() use ($app)
 {
@@ -285,7 +351,7 @@ $app->group('/reports', function() use ($app)
         $report = new ValidationReport($id);
         $download = $app->request()->params('download');
         if(null != $download && $download) {
-            header("Content-Disposition: attachment; filename=\"$id.json\"");
+            header("Content-Disposition: attachment; filename=\"report-$id.json\"");
         }
 
         $app->render(200, $report->GetReport($app->request()->params('filters'),

@@ -1,4 +1,6 @@
 ﻿/// <reference path="knockout-3.3.0.debug.js" />
+/// <reference path="NewReferenceViewModel.js" />
+/// <reference path="NewReportViewModel.js" />
 
 function ValidationViewModel(appViewModel, resultsViewModel)
 {
@@ -72,7 +74,8 @@ function ValidationViewModel(appViewModel, resultsViewModel)
     self.totalEntries = ko.pureComputed(function () { return self.totals.log_total(); });
 
     self.numPages = ko.pureComputed(function () { return Math.ceil(self.totalEntries() / self.pageSize()); }, this);
-    self.pages = ko.pureComputed(function () {
+    self.pages = ko.pureComputed(function ()
+    {
         var pages = [];
         var numPages = self.numPages();
 
@@ -131,7 +134,8 @@ function ValidationViewModel(appViewModel, resultsViewModel)
 
     appViewModel.isValidation.subscribe(function (selected)
     {
-        if (selected) {
+        if (selected)
+        {
             resultsViewModel.updateSessionList();
             self.updateReferenceList();
             self.updateReportList();
@@ -181,6 +185,59 @@ function ValidationViewModel(appViewModel, resultsViewModel)
     {
         var parser = document.createElement('a');
         parser.href = report.href();
+        parser.search = 'download=1';
+        location.href = parser.href;
+    };
+
+    self.newReference = function ()
+    {
+        var newReference = new NewReferenceViewModel(self.resultsViewModel, self);
+        showModal({
+            viewModel: newReference,
+            context: this // Set context so we don't need to bind the callback function
+        }).then(function (result)
+        {
+            if (appViewModel.endpoints.references)
+            {
+                var selectedSessions = newReference.selectedSessions();
+                if(selectedSessions.length >= newReference.minSessions())
+                {
+                    var sessionIds = [];
+                    for(var i in selectedSessions) {
+                        sessionIds[sessionIds.length] = selectedSessions[i].id();
+                    }
+
+                    self.fetching(true);
+                    $.post(appViewModel.endpoints.references,
+                    {
+                        sessions: sessionIds,
+                        minPass: newReference.minPasses(),
+                        name: newReference.name()
+                    }, function (data) {
+                        self.fetching(false);
+                    }, 'json');
+                }
+            }
+        });
+    }
+    
+    self.deleteReference = function (reference)
+    {
+        showModal({
+            viewModel: new DeleteViewModel(reference, 'DeleteReference'),
+            context: this // Set context so we don't need to bind the callback function
+        }).then(function (result) {
+            $.ajax({
+                url: reference.href(),
+                type: 'DELETE'
+            });
+        });
+    };
+
+    self.downloadReference = function (reference)
+    {
+        var parser = document.createElement('a');
+        parser.href = reference.href();
         parser.search = 'download=1';
         location.href = parser.href;
     };
@@ -280,16 +337,37 @@ function ValidationViewModel(appViewModel, resultsViewModel)
         switch (data.action)
         {
             case "create":
-                if (self.reportListValid()) {
-                    self.reportList.push(new TestReportListViewModel(data.report));
+                if (data.report)
+                {
+                    if (self.reportListValid()) {
+                        self.reportList.push(new TestReportListViewModel(data.report));
+                    }
+                }
+                else if(data.reference)
+                {
+                    if (self.referenceListValid()) {
+                        self.referenceList.push(new TestReferenceViewModel(data.reference));
+                    }
                 }
                 break;
 
             case "delete":
-                if (self.reportListValid()) {
-                    self.reportList.remove(function (item) {
-                        return item.id() == data.report;
-                    });
+                if (data.report)
+                {
+                    if (self.reportListValid())
+                    {
+                        self.reportList.remove(function (item) {
+                            return item.id() == data.report;
+                        });
+                    }
+                }
+                else if (data.reference)
+                {
+                    if (self.referenceListValid()) {
+                        self.referenceList.remove(function (item) {
+                            return item.id() == data.reference;
+                        });
+                    }
                 }
                 break;
         }
