@@ -1,6 +1,6 @@
 <?PHP
 
-$wpt_base = "http://web-platform.test:9001";
+$wpt_base = "http://web-platform.test:8000";
 //$wpt_base = "http://localhost:57826/";
 $http = array_key_exists("REQUEST_SCHEME", $_SERVER) ? $_SERVER["REQUEST_SCHEME"] : "http";
 $server = array_key_exists("HTTP_HOST", $_SERVER) ? $_SERVER["HTTP_HOST"] : "http";

@@ -1,6 +1,6 @@
 <?php
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require 'vendor/autoload.php';
 require 'src/Notifier/Pusher.php';
 
 $loop   = React\EventLoop\Factory::create();
@@ -14,7 +14,7 @@ $pull->on('message', array($pusher, 'onBlogEntry'));
 
 // Set up our WebSocket server for clients wanting real-time updates
 $webSock = new React\Socket\Server($loop);
-$webSock->listen(8000, '0.0.0.0'); // Binding to 0.0.0.0 means remotes can connect
+$webSock->listen(9001, '0.0.0.0'); // Binding to 0.0.0.0 means remotes can connect
 $webServer = new Ratchet\Server\IoServer(
     new Ratchet\Http\HttpServer(
         new Ratchet\WebSocket\WsServer(

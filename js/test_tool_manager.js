@@ -1,4 +1,4 @@
-/// <reference path="jquery-1.9.1.js" />
+﻿/// <reference path="jquery-1.9.1.js" />
 /// <reference path="bootstrap.js" />
 /// <reference path="knockout-3.3.0.debug.js" />
 /// <reference path="knockout.mapping-latest.debug.js" />
@@ -76,7 +76,7 @@ function HtmlTestToolViewModel()
     });
 
     // Events from the server
-    var conn = new ab.Session('ws://'+window.location.hostname+':8000',
+    var conn = new ab.Session('ws://'+window.location.hostname+':9001',
         function ()
         {
             conn.subscribe('html5_test_tool.dlna.org', self.on_server_event);

@@ -1,11 +1,6 @@
 {
     "name": "",
     "description": "",
-    "autoload": {
-        "psr-0": {
-            "Html5TestTool": "."
-        }
-    },
     "require": {
         "cboden/ratchet": "0.3.*",
         "react/zmq": "0.2.*|0.3.*"
