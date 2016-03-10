@@ -55,6 +55,9 @@ if(file_exists(STATUS_FILE))
         $status['reports'] = 0;
         unset($status['count']);
     }
+
+    if(!array_key_exists('results', $status)) { $status['results'] = 0; }
+    if(!array_key_exists('reports', $status)) { $status['reports'] = 0; }
 } 
 else  
 {
