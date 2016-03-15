@@ -79,7 +79,7 @@ function HtmlTestToolViewModel()
     var conn = new ab.Session('ws://'+window.location.hostname+':9001',
         function ()
         {
-            conn.subscribe('html5_test_tool.dlna.org', self.on_server_event);
+            conn.subscribe('admin.html5_test_suite.dlna.org', self.on_server_event);
         },
         function () {
             console.warn('WebSocket connection closed');

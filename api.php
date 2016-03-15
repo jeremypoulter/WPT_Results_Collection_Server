@@ -4,6 +4,8 @@
 // - https://github.com/slimphp/Slim
 // - https://github.com/entomb/slim-json-api
 
+define('ADMIN_TOPIC', 'admin.html5_test_suite.dlna.org');
+
 require 'vendor/autoload.php';
 
 require 'Session.php';
@@ -101,7 +103,7 @@ $app->group('/results', function() use ($app)
         $statusModified = true;
         $sessionInfo = $session->getInfo();
         $sessionInfo['href'] = $app->urlFor('results', array('id' => $session->id));
-        Notify(array(
+        Notify(ADMIN_TOPIC, array(
             'action' => 'create',
             'session' => $sessionInfo
         ));
@@ -163,7 +165,7 @@ $app->group('/results', function() use ($app)
             {
                 $index = $session->saveResult($result);
                 $result['id'] = $index;
-                Notify(array(
+                Notify(ADMIN_TOPIC, array(
                     'action' => 'result',
                     'session' => $session->getInfo(),
                     'result'  => $result,
@@ -181,7 +183,7 @@ $app->group('/results', function() use ($app)
     {
         $session = new Session($id);
         $session->delete();
-        Notify(array(
+        Notify(ADMIN_TOPIC, array(
             'action' => 'delete',
             'session' => $id,
         ));
@@ -195,7 +197,7 @@ $app->group('/results', function() use ($app)
         {
             $index = $session->saveResult($result, $index);
             $result['id'] = $index;
-            Notify(array(
+            Notify(ADMIN_TOPIC, array(
                 'action' => 'result',
                 'session' => $session->getInfo(),
                 'result'  => $result,
@@ -252,7 +254,7 @@ $app->group('/references', function() use ($app)
         $statusModified = true;
         $referenceInfo = $reference->getInfo();
         $referenceInfo['href'] = $app->urlFor('references', array('id' => $referenceInfo['id']));
-        Notify(array(
+        Notify(ADMIN_TOPIC, array(
             'action' => 'create',
             'reference' => $referenceInfo
         ));
@@ -294,7 +296,7 @@ $app->group('/references', function() use ($app)
     {
         $reference = new Reference($id);
         $reference->delete();
-        Notify(array(
+        Notify(ADMIN_TOPIC, array(
             'action' => 'delete',
             'reference' => $id,
         ));
@@ -314,7 +316,7 @@ $app->group('/reports', function() use ($app)
         $statusModified = true;
         $reportInfo = $report->getInfo();
         $reportInfo['href'] = $app->urlFor('reports', array('id' => $report->id));
-        Notify(array(
+        Notify(ADMIN_TOPIC, array(
             'action' => 'create',
             'report' => $reportInfo
         ));
@@ -383,7 +385,7 @@ $app->group('/reports', function() use ($app)
     {
         $report = new ValidationReport($id);
         $report->delete();
-        Notify(array(
+        Notify(ADMIN_TOPIC, array(
             'action' => 'delete',
             'report' => $id,
         ));
@@ -420,13 +422,16 @@ if($statusModified)
     file_put_contents(STATUS_FILE, json_encode($status));
 }
 
-function Notify($entryData)
+function Notify($topic, $data)
 {
     $context = new ZMQContext();
     $socket = $context->getSocket(ZMQ::SOCKET_PUSH, 'my pusher');
     $socket->connect("tcp://localhost:5555");
 
-    $socket->send(json_encode($entryData));
+    $socket->send(json_encode(array(
+        'topic' => $topic,
+        'data' => $data
+    )));
 }
 
 ?>

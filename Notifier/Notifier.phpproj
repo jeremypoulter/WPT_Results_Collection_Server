@@ -19,14 +19,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="notify.php" />
-    <Compile Include="src\Notifier\Pusher.php" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="composer.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="src\" />
-    <Folder Include="src\Notifier\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\DEVSENSE\PHP Tools\VS$(VisualStudioVersion)\Devsense.PHP.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
