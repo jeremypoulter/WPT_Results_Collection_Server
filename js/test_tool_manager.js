@@ -20,6 +20,9 @@ function HtmlTestToolViewModel()
     self.isHome = ko.pureComputed(function () {
         return this.tab() == 'home';
     }, this);
+    self.isRunner = ko.pureComputed(function () {
+        return this.tab() == 'runner';
+    }, this);
     self.isResults = ko.pureComputed(function () {
         return this.tab() == 'results';
     }, this);
@@ -49,6 +52,7 @@ function HtmlTestToolViewModel()
 
     // Tab View models
     self.resultsViewModel = ko.observable(new ResultsViewModel(self));
+    self.runnerViewModel = ko.observable(new RunnerViewModel(self, self.resultsViewModel()));
     self.validationViewModel = ko.observable(new ValidationViewModel(self, self.resultsViewModel()));
 
     // Client-side routes    
@@ -63,6 +67,11 @@ function HtmlTestToolViewModel()
         this.get('#results/:sessionId', function () {
             self.tab('results');
             self.resultsViewModel().session(this.params.sessionId);
+        });
+
+        this.get('#runner/:sessionId', function () {
+            self.tab('runner');
+            self.runnerViewModel().session(this.params.sessionId);
         });
 
         this.get('#validation/:reportId', function () {

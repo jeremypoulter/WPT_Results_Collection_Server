@@ -48,7 +48,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                     <li data-bind="css: { active: isHome }">
                         <a href="#home">Home</a>
                     </li>
-                    <li class="dropdown">
+                    <li class="dropdown" data-bind="css: { active: isRunner }">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Test Runner</a>
                         <ul class="dropdown-menu">
                             <li>
@@ -56,6 +56,9 @@ $results_endpoints = $http."://".$server.$port.$path;
                             </li>
                             <li>
                                 <a href="<?= $wpt_base ?>/tools/runner/index.html" target="_blank">Full</a>
+                            </li>
+                            <li>
+                                <a href="#runner">Remote</a>
                             </li>
                         </ul>
                     </li>
@@ -77,7 +80,8 @@ $results_endpoints = $http."://".$server.$port.$path;
         <div class="starter-template" data-bind="visible: isHome">
             <h1>DLNA HTML5 Test Tools</h1>
             <div class="alert alert-danger" data-bind="visible:config.admin" role="alert">
-                <strong>Warning!</strong> Admin enabled
+                <strong>Warning!</strong>
+                Admin enabled
             </div>
             <p class="lead">
                 Welcome to the DLNA HTML 5 Test Tool.
@@ -108,6 +112,171 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
         </div>
 
+        <div data-bind="visible: isRunner, with: runnerViewModel">
+            <div data-bind="visible: false === session()">
+                <table class="sessions">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Count</th>
+                            <th>Created</th>
+                            <th>Modified</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody data-bind="foreach: sessionListConnected">
+                        <tr>
+                            <td data-bind="text: id, click: $parent.goToSession"></td>
+                            <td data-bind="liveEditor: name, click: name.edit">
+                                <span class="view" data-bind="text: name"></span>
+                                <input class="edit" data-bind="value: name,
+                                                                executeOnEnter: name.stopEditing,
+                                                                focus: name.editing,
+                                                                event: { blur: name.stopEditing }" />
+                            </td>
+                            <td data-bind="text: count, click: $parent.goToSession"></td>
+                            <td data-bind="text: new Date($data.created() * 1000), click: $parent.goToSession"></td>
+                            <td data-bind="text: new Date($data.modified() * 1000), click: $parent.goToSession"></td>
+                            <td>
+                                <a data-bind="click: $parent.deleteSession" aria-hidden="true" aria-label="Delete">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                                <a data-bind="click: $parent.downloadSession" aria-hidden="true" aria-label="Download">
+                                    <span class="glyphicon glyphicon-download-alt"></span>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div data-bind="visible: session">
+                <p>
+                    Session:
+                    <span data-bind="text: session"></span>
+                </p>
+
+                <div id="testControl" class="panel panel-default">
+                    <div class='panel-heading'>
+                        <h2 class='panel-title'>Runner Options</h2>
+                    </div>
+                    <div class="panel-body">
+                        <form id='options' class='form-horizontal' onsubmit='return false;'>
+                            <div id='testSelection'>
+                                <p>Include test types:</p>
+                                <div class="form-group row">
+                                    <label for="th" class="col-sm-3 control-label">JavaScript tests</label>
+                                    <div class="col-sm-9">
+                                        <input type="checkbox" checked value="testharness" id='th' class='test-type' />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="ref" class="col-sm-3 control-label">Reference tests</label>
+                                    <div class="col-sm-9">
+                                        <input type="checkbox" checked value="reftest" id='ref' class='test-type' />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="man" class="col-sm-3 control-label">Manual tests</label>
+                                    <div class="col-sm-9">
+                                        <input type="checkbox" value="manual" id='man' class='test-type' />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="iframe" class="col-sm-3 control-label">Use iFrame</label>
+                                    <div class="col-sm-9">
+                                        <input type="checkbox" value="iframe" id='iframe' />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row has-feedback">
+                                    <label for="pathSelector" class="col-sm-3 control-label">Run tests under path</label>
+                                    <div class="col-sm-9">
+                                        <select id='pathSelector' class='form-control'></select>
+                                        <input value="/" id='path' class='path pathText form-control' disabled />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="timeout_multiplier" class="col-sm-3 control-label">Timeout Multiplier</label>
+                                    <div class="col-sm-9">
+                                        <input type="number" value="1" id='timeout_multiplier' class='timeout_multiplier form-control' />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="render" class="col-sm-3 control-label">Show output (debug)</label>
+                                    <div class="col-sm-9">
+                                        <input type="checkbox" id='render' value='render' class='render' />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="upload_results" class="col-sm-3 control-label">Dump JSON (debug)</label>
+                                    <div class="col-sm-9">
+                                        <input type="checkbox" id='dumpit' />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="upload_results" class="col-sm-3 control-label">Upload test results</label>
+                                    <div class="col-sm-1">
+                                        <input type="checkbox" id='upload_results' />
+                                    </div>
+                                    <div class="col-sm-8" style="display: none">
+                                        <button id="new_session" class="btn btn-default">New session </button>
+                                        session
+                                        <span id="sessionId" class=""></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row" style='padding-top: 20px'>
+                                <div class="col-sm-offset-3 col-sm-9">
+                                    <button type="submit" class="btn btn-success toggleStart" disabled>Start</button>
+                                    <button type='submit' class="btn btn-info togglePause" disabled>Pause</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="output">
+                    <div class="summary clearfix">
+                        <h4>Progress</h4>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar"
+                                aria-valuenow="0" aria-valuemin="0" aria-valuemax="0" style="width: 0">
+                                0%
+                            </div>
+                        </div>
+                        <div id='test_url'></div>
+                        <table class='table'>
+                            <thead>
+                                <tr>
+                                    <th>Passed</th>
+                                    <th>Failed</th>
+                                    <th>Timeouts</th>
+                                    <th>Errors</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class='PASS'>0</td>
+                                    <td class='FAIL'>0</td>
+                                    <td class='TIMEOUT'>0</td>
+                                    <td class='ERROR'>0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div data-bind="visible: isResults, with: resultsViewModel">
             <div data-bind="visible: false === session()">
                 <table class="sessions">
@@ -122,27 +291,27 @@ $results_endpoints = $http."://".$server.$port.$path;
                         </tr>
                     </thead>
                     <tbody data-bind="foreach: sessionList">
-                        <tr>
-                            <td data-bind="text: id, click: $parent.goToSession"></td>
-                            <td data-bind="liveEditor: name, click: name.edit">
-                                <span class="view" data-bind="text: name"></span>
-                                <input class="edit" data-bind="value: name,
-                                                               executeOnEnter: name.stopEditing,
-                                                               focus: name.editing,
-                                                               event: { blur: name.stopEditing }" />
-                            </td>
-                            <td data-bind="text: count, click: $parent.goToSession"></td>
-                            <td data-bind="text: new Date($data.created() * 1000), click: $parent.goToSession"></td>
-                            <td data-bind="text: new Date($data.modified() * 1000), click: $parent.goToSession"></td>
-                            <td>
-                                <a data-bind="click: $parent.deleteSession" aria-hidden="true" aria-label="Delete">
-                                    <span class="glyphicon glyphicon-trash"></span>
-                                </a>
-                                <a data-bind="click: $parent.downloadSession" aria-hidden="true" aria-label="Download">
-                                    <span class="glyphicon glyphicon-download-alt"></span>
-                                </a>
-                            </td>
-                        </tr>
+                    <tr>
+                        <td data-bind="text: id, click: $parent.goToSession"></td>
+                        <td data-bind="liveEditor: name, click: name.edit">
+                        <span class="view" data-bind="text: name"></span>
+                        <input class="edit" data-bind="value: name,
+                                                    executeOnEnter: name.stopEditing,
+                                                    focus: name.editing,
+                                                    event: { blur: name.stopEditing }" />
+                        </td>
+                        <td data-bind="text: count, click: $parent.goToSession"></td>
+                        <td data-bind="text: new Date($data.created() * 1000), click: $parent.goToSession"></td>
+                        <td data-bind="text: new Date($data.modified() * 1000), click: $parent.goToSession"></td>
+                        <td>
+                        <a data-bind="click: $parent.deleteSession" aria-hidden="true" aria-label="Delete">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                        <a data-bind="click: $parent.downloadSession" aria-hidden="true" aria-label="Download">
+                            <span class="glyphicon glyphicon-download-alt"></span>
+                        </a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -584,6 +753,7 @@ $results_endpoints = $http."://".$server.$port.$path;
         <script src="js/TestReportViewModel.js" charset="UTF-8"></script>
         <script src="js/ValidationViewModel.js" charset="UTF-8"></script>
         <script src="js/ResultsViewModel.js" charset="UTF-8"></script>
+        <script src="js/RunnerViewModel.js" charset="UTF-8"></script>
         <script src="js/test_tool_manager.js" charset="UTF-8"></script>
     </div>
 </body>

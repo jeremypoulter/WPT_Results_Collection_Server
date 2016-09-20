@@ -4,10 +4,9 @@
 // - https://github.com/slimphp/Slim
 // - https://github.com/entomb/slim-json-api
 
-define('ADMIN_TOPIC', 'admin.html5_test_suite.dlna.org');
-
 require 'vendor/autoload.php';
 
+require 'config.php';
 require 'Session.php';
 require 'Reference.php';
 require 'ValidationReport.php';
@@ -18,13 +17,6 @@ ini_set('memory_limit', -1);
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
-
-// Configuration
-define('DATA_DIR', dirname(__FILE__).'/data');
-define('SESSION_DIR', DATA_DIR.'/results');
-define('VALIDATION_REPORT_DIR', DATA_DIR.'/reports');
-define('STATUS_FILE', DATA_DIR.'/status');
-define('REFERENCE_DIR', dirname(__FILE__).'/reference');
 
 // Make sure our data/session dir is setup correctly
 if(!file_exists(DATA_DIR)) {

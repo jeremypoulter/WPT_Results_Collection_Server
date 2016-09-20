@@ -287,6 +287,18 @@ function ResultsViewModel(appViewModel)
                     self.updateResults(self.session());
                 }
                 break;
+            case "update":
+                if (self.sessionListValid())
+                {
+                    for (index in self.sessionList())
+                    {
+                        var item = self.sessionList()[index];
+                        if (data.session.id == item.id()) {
+                            item.update(data.session);
+                        }
+                    }
+                }
+                break;
         }
     };
 }

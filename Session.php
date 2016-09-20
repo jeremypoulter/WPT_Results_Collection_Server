@@ -1,4 +1,12 @@
 <?php
+
+abstract class SessionState
+{
+    const Unknown = 'unknown';
+    const Connected = 'connected';
+    const Disconnected = 'disconnected';
+}
+
 class Session
 {
     public $id = false;
@@ -7,6 +15,8 @@ class Session
     private $lock = false;
 
     static private $statusTypes = array('PASS', 'FAIL', 'TIMEOUT', 'ERROR');
+
+
 
     public function __construct($id)
     {
@@ -101,6 +111,24 @@ class Session
         }
         $this->unlock();
     }
+    
+    public function getStatus()
+    {
+        return array_key_exists('status', $this->status) ? $this->status['status'] : SessionState::Unknown;
+    }
+
+    public function setStatus($newStatus)
+    {
+        $this->lock();
+        $this->loadState();
+        if(!array_key_exists('status', $this->status) ||
+           $newStatus != $this->status['status'])
+        {
+            $this->status['status'] = $newStatus;
+            $this->saveState();
+        }
+        $this->unlock();
+    }
 
     public function getCount() 
     {
@@ -126,7 +154,8 @@ class Session
             'count' => $this->getCount(),
             'totals' => $this->status['totals'],
             'created' => $this->getCreatedTime(),
-            'modified' => $this->getModifiedTime()
+            'modified' => $this->getModifiedTime(),
+            'status' => $this->getStatus()
         );
     }
 

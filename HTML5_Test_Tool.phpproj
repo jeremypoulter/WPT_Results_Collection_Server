@@ -30,6 +30,7 @@
     <Compile Include="api.php" />
     <Compile Include="Reference.php" />
     <Compile Include="ResultSupport.php" />
+    <Compile Include="config.php" />
     <Compile Include="Session.php" />
     <Compile Include="templates\json.php" />
     <Compile Include="LICENSE" />
@@ -71,6 +72,7 @@
     <Content Include="js\TestResultsViewModel.js" />
     <Content Include="js\TestSessionViewModel.js" />
     <Content Include="js\test_tool_manager.js" />
+    <Content Include="js\RunnerViewModel.js" />
     <Content Include="js\ValidationViewModel.js" />
     <Content Include="packages.config" />
     <Content Include="js\bootstrap.js" />

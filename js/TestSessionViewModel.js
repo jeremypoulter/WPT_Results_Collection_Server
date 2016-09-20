@@ -11,4 +11,9 @@ function TestSessionViewModel(data)
         $.post(self.href(), JSON.stringify({ name: value }), function () {
         });
     });
+
+    self.update = function (newData)
+    {
+        ko.mapping.fromJS(newData, self);
+    }
 }
