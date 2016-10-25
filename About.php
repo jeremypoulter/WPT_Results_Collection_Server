@@ -34,20 +34,24 @@ class About
 
     public static function getInfo()
     {
-        @list($system, $host, $kernel) = preg_split('/[\s,]+/', php_uname('a'), 5);
+        @$system = php_uname('s');
+        @$kernel = @php_uname('r').' '.@php_uname('v').' '.@php_uname('m');
+        @$host = @php_uname('n');
+        @$ip = @gethostbyname($host);
+        @$hostbyip = @gethostbyaddr($ip);
         return array(
             'version' => About::getGitBranch(),
             'date' => date('Y-m-d H:i:s T'),
             'system' => $system,
             'kernel' => $kernel,
             'host' => $host,
-            'ip' => gethostbyname($host),
+            'ip' => $ip,
             'uptime' => @exec('uptime'),
             'http_server' => About::getServerVar('SERVER_SOFTWARE'),
             'php' => PHP_VERSION,
             'php_modules' => get_loaded_extensions(),
             'zend' => (function_exists('zend_version') ? zend_version() : 'n/a'),
-            'hostbyaddress' => @gethostbyaddr(gethostbyname($host)),
+            'hostbyaddress' => $hostbyip,
             'http_proto' => About::getServerVar('SERVER_PROTOCOL'),
             'http_mode' => About::getServerVar('GATEWAY_INTERFACE'),
             'http_port' => About::getServerVar('SERVER_PORT')
