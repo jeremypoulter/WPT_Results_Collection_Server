@@ -105,10 +105,10 @@ function ResultsViewModel(appViewModel)
     self.filters = ko.computed(function ()
     {
         var filters = [];
-        if (self.showPass()) { filters.push("PASS") }
-        if (self.showFail()) { filters.push("FAIL") }
-        if (self.showTimeout()) { filters.push("TIMEOUT") }
-        if (self.showError()) { filters.push("ERROR") }
+        if (self.showPass()) { filters.push("PASS"); }
+        if (self.showFail()) { filters.push("FAIL"); }
+        if (self.showTimeout()) { filters.push("TIMEOUT"); }
+        if (self.showError()) { filters.push("ERROR"); }
         return filters;
     });
 
@@ -195,7 +195,7 @@ function ResultsViewModel(appViewModel)
             {
                 self.updateSessionList(function () {
                     self.updateResults(id);
-                })
+                });
             }
         }
     };
@@ -205,7 +205,7 @@ function ResultsViewModel(appViewModel)
         for(index in self.sessionList())
         {
             var item = self.sessionList()[index];
-            if (id == item.id()) {
+            if (id === item.id()) {
                 return item.href();
             }
         }
@@ -264,7 +264,7 @@ function ResultsViewModel(appViewModel)
                 if (self.sessionListValid())
                 {
                     self.sessionList.remove(function (item) {
-                        return item.id() == data.session;
+                        return item.id() === data.session;
                     });
                 }
                 break;
@@ -274,7 +274,7 @@ function ResultsViewModel(appViewModel)
                     for (index in self.sessionList())
                     {
                         var item = self.sessionList()[index];
-                        if (data.session.id == item.id())
+                        if (data.session.id === item.id())
                         {
                             item.count(data.session.count);
                             item.modified(data.session.modified);
@@ -282,7 +282,7 @@ function ResultsViewModel(appViewModel)
                     }
                 }
 
-                if (self.session() == data.session.id)
+                if (self.session() === data.session.id)
                 {
                     self.updateResults(self.session());
                 }

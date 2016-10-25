@@ -189,21 +189,17 @@ function ValidationViewModel(appViewModel, resultsViewModel)
         location.href = parser.href;
     };
 
-    self.newReference = function ()
-    {
+    self.newReference = function () {
         var newReference = new NewReferenceViewModel(self.resultsViewModel, self);
         showModal({
             viewModel: newReference,
             context: this // Set context so we don't need to bind the callback function
-        }).then(function (result)
-        {
-            if (appViewModel.endpoints.references)
-            {
+        }).then(function (result) {
+            if (appViewModel.endpoints.references) {
                 var selectedSessions = newReference.selectedSessions();
-                if(selectedSessions.length >= newReference.minSessions())
-                {
+                if (selectedSessions.length >= newReference.minSessions()) {
                     var sessionIds = [];
-                    for(var i in selectedSessions) {
+                    for (var i in selectedSessions) {
                         sessionIds[sessionIds.length] = selectedSessions[i].id();
                     }
 
@@ -219,7 +215,7 @@ function ValidationViewModel(appViewModel, resultsViewModel)
                 }
             }
         });
-    }
+    };
     
     self.deleteReference = function (reference)
     {
@@ -302,7 +298,7 @@ function ValidationViewModel(appViewModel, resultsViewModel)
             {
                 self.updateReportList(function () {
                     self.updateReport(id);
-                })
+                });
             }
         }
     };
@@ -310,7 +306,7 @@ function ValidationViewModel(appViewModel, resultsViewModel)
     self.getEndpointForReport = function (id) {
         for (index in self.reportList()) {
             var item = self.reportList()[index];
-            if (id == item.id()) {
+            if (id === item.id()) {
                 return item.href();
             }
         }
@@ -357,7 +353,7 @@ function ValidationViewModel(appViewModel, resultsViewModel)
                     if (self.reportListValid())
                     {
                         self.reportList.remove(function (item) {
-                            return item.id() == data.report;
+                            return item.id() === data.report;
                         });
                     }
                 }
@@ -365,7 +361,7 @@ function ValidationViewModel(appViewModel, resultsViewModel)
                 {
                     if (self.referenceListValid()) {
                         self.referenceList.remove(function (item) {
-                            return item.id() == data.reference;
+                            return item.id() === data.reference;
                         });
                     }
                 }
