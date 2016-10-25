@@ -14,7 +14,7 @@ function AboutViewModel(appViewModel) {
         'uptime': 'unknown',
         'http_server': 'unknown',
         'php': 'unknown',
-        'php_modules': 'unknown',
+        'php_modules': [],
         'zend': 'unknown',
         'hostbyaddress': 'unknown',
         'http_proto': 'unknown',
@@ -23,6 +23,10 @@ function AboutViewModel(appViewModel) {
     }, {}, self);
 
     self.fetching = ko.observable(false);
+
+    self.php_module_list = ko.pureComputed(function () {
+        return self.php_modules().join(', ');
+    });
 
     self.update = function () {
         if (appViewModel.endpoints.about) {

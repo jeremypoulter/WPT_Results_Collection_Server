@@ -455,9 +455,7 @@ $results_endpoints = $http."://".$server.$port.$path;
                 <tr>
                     <td class="subinfo"></td>
                     <td>Modules</td>
-                    <td>
-                        
-                    </td>
+                    <td data-bind="text: php_module_list"></td>
                 </tr>
             </table>
 
