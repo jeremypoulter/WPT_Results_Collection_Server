@@ -27,6 +27,7 @@
     <IncludeDebugInformation>false</IncludeDebugInformation>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="About.php" />
     <Compile Include="api.php" />
     <Compile Include="Reference.php" />
     <Compile Include="ResultSupport.php" />
@@ -51,6 +52,7 @@
     <Content Include="css\bootstrap.min.css" />
     <Content Include="css\bootstrap.min.css.map" />
     <Content Include="index.php" />
+    <Content Include="js\AboutViewModel.js" />
     <Content Include="js\autobahn.js" />
     <Content Include="js\autobahn.min.js" />
     <Content Include="js\NewReferenceViewModel.js" />

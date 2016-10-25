@@ -12,6 +12,7 @@ require 'Session.php';
 require 'Reference.php';
 require 'ValidationReport.php';
 require 'ResultSupport.php';
+require 'About.php';
 
 error_reporting(E_ALL);
 ini_set('memory_limit', -1);
@@ -44,13 +45,13 @@ if(!file_exists(REFERENCE_DIR)) {
 }
 
 // Load our status
-if(file_exists(STATUS_FILE)) 
+if(file_exists(STATUS_FILE))
 {
     $status = json_decode(file_get_contents(STATUS_FILE), true);
     $statusModified = false;
 
     // Bit of backward compatability
-    if(array_key_exists('count', $status)) 
+    if(array_key_exists('count', $status))
     {
         $statusModified = true;
         $status['results'] = $status['count'];
@@ -60,8 +61,8 @@ if(file_exists(STATUS_FILE))
 
     if(!array_key_exists('results', $status)) { $status['results'] = 0; }
     if(!array_key_exists('reports', $status)) { $status['reports'] = 0; }
-} 
-else  
+}
+else
 {
     $status = array(
         'results' => 0,
@@ -92,9 +93,9 @@ $app->config('debug', false);
 $app->view(new \JsonApiView());
 $app->add(new \JsonApiMiddleware());
 
-$app->group('/results', function() use ($app) 
+$app->group('/results', function() use ($app)
 {
-    $app->post('/', function () use ($app)  
+    $app->post('/', function () use ($app)
     {
         global $status, $statusModified;
         // Create a new session
@@ -111,13 +112,13 @@ $app->group('/results', function() use ($app)
             'session' => $sessionInfo
         ));
     });
-    $app->get('/', function () use ($app) 
+    $app->get('/', function () use ($app)
     {
         $sessions = array();
 
-        if ($dh = opendir(SESSION_DIR)) 
+        if ($dh = opendir(SESSION_DIR))
         {
-            while (($file = readdir($dh)) !== false) 
+            while (($file = readdir($dh)) !== false)
             {
                 if(Session::isValidSession($file))
                 {
@@ -138,19 +139,19 @@ $app->group('/results', function() use ($app)
             'sessions' => $sessions
         ));
     })->name('resultIndex');
-    $app->get('/:id', function ($id) use($app) 
+    $app->get('/:id', function ($id) use($app)
     {
         $session = new Session($id);
         $download = $app->request()->params('download');
         if(null != $download && $download) {
             header("Content-Disposition: attachment; filename=\"result-$id.json\"");
         }
-        
-        $app->render(200, $session->GetResults($app->request()->params('filters'), 
-                                               $app->request()->params('pageIndex'), 
+
+        $app->render(200, $session->GetResults($app->request()->params('filters'),
+                                               $app->request()->params('pageIndex'),
                                                $app->request()->params('pageSize')));
     })->name('results');
-    $app->post('/:id', function ($id) use($app) 
+    $app->post('/:id', function ($id) use($app)
     {
         $session = new Session($id);
         $result = json_decode($app->request->getBody(), true);
@@ -179,7 +180,7 @@ $app->group('/results', function() use ($app)
             ));
         }
     });
-    $app->delete('/:id', function ($id) use($app) 
+    $app->delete('/:id', function ($id) use($app)
     {
         $session = new Session($id);
         $session->delete();
@@ -189,7 +190,7 @@ $app->group('/results', function() use ($app)
         ));
         $app->render(200, array());
     });
-    $app->put('/:id/:index', function ($id, $index) use($app) 
+    $app->put('/:id/:index', function ($id, $index) use($app)
     {
         $session = new Session($id);
         $result = json_decode($app->request->getBody(), true);
@@ -246,7 +247,7 @@ $app->group('/references', function() use ($app)
         global $status, $statusModified;
 
         // Create a new session
-        $reference = Reference::createReference($status['reference'], 
+        $reference = Reference::createReference($status['reference'],
                                                 $app->request()->params('sessions'),
                                                 $app->request()->params('name'),
                                                 $app->request()->params('minPass'));
@@ -309,8 +310,8 @@ $app->group('/reports', function() use ($app)
     {
         global $status, $statusModified;
         // Create a new session
-        $report = ValidationReport::newReport($status['reports'], 
-                                              $app->request()->params('session'), 
+        $report = ValidationReport::newReport($status['reports'],
+                                              $app->request()->params('session'),
                                               $app->request()->params('reference'));
         $status['reports']++;
         $statusModified = true;
@@ -395,7 +396,29 @@ $app->group('/reports', function() use ($app)
         $app->render(200, array());
     });
 });
-$app->get('/', function () use ($app)  
+$app->group('/drm', function() use ($app)
+{
+    $app->get('/', function () use ($app)
+    {
+        $app->render(200, array(
+            'enabled' => true
+        ));
+    })->name('drm');
+    $app->post('/:id', function () use ($app)
+    {
+        $app->render(200,array(
+            'sessionId' => ''
+        ));
+    });
+});
+$app->group('/about', function() use ($app)
+{
+    $app->get('/', function () use ($app)
+    {
+        $app->render(200, About::getInfo());
+    })->name('about');
+});
+$app->get('/', function () use ($app)
 {
     global $status, $statusModified;
     $app->render(200, array_merge($status, array(
@@ -411,6 +434,14 @@ $app->get('/', function () use ($app)
             array(
                 'rel' => 'references',
                 'href' => $app->urlFor('referenceIndex')
+            ),
+            array(
+                'rel' => 'drm',
+                'href' => $app->urlFor('drm')
+            ),
+            array(
+                'rel' => 'about',
+                'href' => $app->urlFor('about')
             )
         )
     )));

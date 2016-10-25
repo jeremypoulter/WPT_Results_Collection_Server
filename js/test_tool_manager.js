@@ -1,4 +1,4 @@
-﻿/// <reference path="jquery-1.9.1.js" />
+/// <reference path="jquery-1.9.1.js" />
 /// <reference path="bootstrap.js" />
 /// <reference path="knockout-3.3.0.debug.js" />
 /// <reference path="knockout.mapping-latest.debug.js" />
@@ -18,16 +18,16 @@ function HtmlTestToolViewModel()
 
     // Derived data
     self.isHome = ko.pureComputed(function () {
-        return this.tab() == 'home';
+        return this.tab() === 'home';
     }, this);
     self.isResults = ko.pureComputed(function () {
-        return this.tab() == 'results';
+        return this.tab() === 'results';
     }, this);
     self.isValidation = ko.pureComputed(function () {
-        return this.tab() == 'validation';
+        return this.tab() === 'validation';
     }, this);
     self.isAbout = ko.pureComputed(function () {
-        return this.tab() == 'about';
+        return this.tab() === 'about';
     }, this);
 
     // Behaviours
@@ -50,6 +50,7 @@ function HtmlTestToolViewModel()
     // Tab View models
     self.resultsViewModel = ko.observable(new ResultsViewModel(self));
     self.validationViewModel = ko.observable(new ValidationViewModel(self, self.resultsViewModel()));
+    self.aboutViewModel = ko.observable(new AboutViewModel(self));
 
     // Client-side routes    
     var sammy = Sammy(function ()
@@ -100,11 +101,13 @@ function HtmlTestToolViewModel()
             self.endpoints[item.rel] = item.href;
         });
 
+        self.aboutViewModel().update();
+
         // The roughts depend on the endpoints being loaded so run them now
         sammy.run();
     }, 'json');
 }
-
+    
 // Activates knockout.js
 var htmlTestTool = new HtmlTestToolViewModel();
 ko.applyBindings(htmlTestTool);

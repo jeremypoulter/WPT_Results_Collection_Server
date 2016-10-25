@@ -399,7 +399,69 @@ $results_endpoints = $http."://".$server.$port.$path;
             </div>
         </div>
 
-        <div data-bind="visible: isAbout"></div>
+        <div data-bind="visible: isAbout, with: aboutViewModel">
+            <h3>Server Information</h3>
+            <table class="table table-hover table-condensed">
+                <tr>
+                    <td><b>HTML5 Test Suite</b></td>
+                    <td>Version</td>
+                    <td data-bind="text: version"></td>
+                </tr>
+                <tr>
+                    <td><b>Server</b></td>
+                    <td>OS</td>
+                    <td>
+                        <span data-bind="text: system"></span>
+                        <span data-bind="text: kernel"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="subinfo"></td>
+                    <td>Host</td>
+                    <td>
+                        <span data-bind="text: host"></span> 
+                        <span data-bind="text: hostbyaddress"></span>
+                        (<span data-bind="text: ip"></span>)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="subinfo"></td>
+                    <td>Date</td>
+                    <td data-bind="text: date"></td>
+                </tr>
+                <tr>
+                    <td class="subinfo"></td>
+                    <td>Uptime</td>
+                    <td data-bind="text: uptime"></td>
+                </tr>
+                <tr>
+                    <td><b>HTTP</b></td>
+                    <td>Server</td>
+                    <td>
+                        <span data-bind="text: http_server"></span>
+                        <span data-bind="text: http_proto"></span>
+                        <span data-bind="text: http_mode"></span>
+                        <span data-bind="text: http_port"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><b>PHP</b></td>
+                    <td>Version</td>
+                    <td>
+                        <span data-bind="text: php"></span>
+                        (<span data-bind="text: zend"></span>)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="subinfo"></td>
+                    <td>Modules</td>
+                    <td>
+                        
+                    </td>
+                </tr>
+            </table>
+
+        </div>
         <!-- /.container -->
 
         <script type="text/html" id="DeleteSession">
@@ -584,6 +646,7 @@ $results_endpoints = $http."://".$server.$port.$path;
         <script src="js/TestReportViewModel.js" charset="UTF-8"></script>
         <script src="js/ValidationViewModel.js" charset="UTF-8"></script>
         <script src="js/ResultsViewModel.js" charset="UTF-8"></script>
+        <script src="js/AboutViewModel.js" charset="UTF-8"></script>
         <script src="js/test_tool_manager.js" charset="UTF-8"></script>
     </div>
 </body>
