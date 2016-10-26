@@ -13,6 +13,7 @@ require 'Reference.php';
 require 'ValidationReport.php';
 require 'ResultSupport.php';
 require 'About.php';
+require 'DRM.php';
 
 error_reporting(E_ALL);
 ini_set('memory_limit', -1);
@@ -26,6 +27,7 @@ define('SESSION_DIR', DATA_DIR.'/results');
 define('VALIDATION_REPORT_DIR', DATA_DIR.'/reports');
 define('STATUS_FILE', DATA_DIR.'/status');
 define('REFERENCE_DIR', dirname(__FILE__).'/reference');
+define('DRM_SESSIONS', DATA_DIR.'/drm.sessions');
 
 // Make sure our data/session dir is setup correctly
 if(!file_exists(DATA_DIR)) {

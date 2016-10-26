@@ -29,6 +29,7 @@
   <ItemGroup>
     <Compile Include="About.php" />
     <Compile Include="api.php" />
+    <Compile Include="DRM.php" />
     <Compile Include="Reference.php" />
     <Compile Include="ResultSupport.php" />
     <Compile Include="Session.php" />
