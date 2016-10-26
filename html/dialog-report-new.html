@@ -1,0 +1,38 @@
+﻿<script type="text/html" id="NewReport">
+  <div class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create Report</h3>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="selectedreference">Select reference:</label>
+            <select id="selectedReference" class="form-control"
+                    data-bind="options: referenceList,
+                                                        optionsText: 'name',
+                                                        optionsValue: 'id',
+                                                        value: selectedReference,
+                                                        optionsCaption: 'Choose...'"></select>
+          </div>
+          <div class="form-group">
+            <label for="selectedSession">Select results:</label>
+            <select id="selectedSession" class="form-control"
+                    data-bind="options: sessionListNamed,
+                                                        optionsText: 'name',
+                                                        optionsValue: 'id',
+                                                        value: selectedSession,
+                                                        optionsCaption: 'Choose...'"></select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+          <button type="button" class="btn btn-primary" data-bind="click: complete, enable: selectionMade">
+            Validate Results
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>

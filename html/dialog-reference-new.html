@@ -1,0 +1,62 @@
+﻿<script type="text/html" id="NewReference">
+  <div class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create Reference</h3>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="nameInput">Name:</label>
+              <input type="text" class="form-control" id="nameInput" placeholder="Name" data-bind="value: name">
+            </div>
+          </form>
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Count</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody data-bind="foreach: selectedSessions">
+              <tr>
+                <td data-bind="text: id"></td>
+                <td data-bind="text: name"></td>
+                <td data-bind="text: count"></td>
+                <td>
+                  <a data-bind="click: $parent.removeSessionFromList" aria-hidden="true" aria-label="Remove">
+                    <span class="glyphicon glyphicon-remove"></span>
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <form class="form-inline">
+            <div class="form-group">
+              <label for="addSession">Select results:</label>
+              <select id="addSession" class="form-control"
+                      data-bind="options: sessionListNamed,
+                                                            optionsText: 'name',
+                                                            optionsValue: 'id',
+                                                            value: addSession,
+                                                            optionsCaption: 'Choose...'"></select>
+            </div>
+            <button type="button" class="btn btn-default" data-bind="click: addSessionToList">Add</button>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+          <button type="button" class="btn btn-primary" data-bind="click: complete, enable: selectionMade">
+            Create reference results
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</script>

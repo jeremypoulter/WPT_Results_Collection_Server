@@ -1,0 +1,136 @@
+﻿<div data-bind="visible: isResults, with: resultsViewModel">
+  <div data-bind="visible: false === session()">
+    <table class="sessions">
+      <thead>
+        <tr>
+          <th>Id</th>
+          <th>Name</th>
+          <th>Count</th>
+          <th>Created</th>
+          <th>Modified</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: sessionList">
+        <tr>
+          <td data-bind="text: id, click: $parent.goToSession"></td>
+          <td data-bind="liveEditor: name, click: name.edit">
+            <span class="view" data-bind="text: name"></span>
+            <input class="edit" data-bind="value: name,
+                                                               executeOnEnter: name.stopEditing,
+                                                               focus: name.editing,
+                                                               event: { blur: name.stopEditing }" />
+          </td>
+          <td data-bind="text: count, click: $parent.goToSession"></td>
+          <td data-bind="text: new Date($data.created() * 1000), click: $parent.goToSession"></td>
+          <td data-bind="text: new Date($data.modified() * 1000), click: $parent.goToSession"></td>
+          <td>
+            <a data-bind="click: $parent.deleteSession" aria-hidden="true" aria-label="Delete">
+              <span class="glyphicon glyphicon-trash"></span>
+            </a>
+            <a data-bind="click: $parent.downloadSession" aria-hidden="true" aria-label="Download">
+              <span class="glyphicon glyphicon-download-alt"></span>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div data-bind="visible: session">
+    <p>
+      Session:
+      <span data-bind="text: session"></span>
+    </p>
+
+    <table class='table resultsSummary'>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Passed</th>
+          <th>Failed</th>
+          <th>Timeouts</th>
+          <th>Errors</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td>
+          <td class="pass" data-bind="text: totalPass"></td>
+          <td class="fail" data-bind="text: totalFail"></td>
+          <td class="timeout" data-bind="text: totalTimeout"></td>
+          <td class="error" data-bind="text: totalError"></td>
+        </tr>
+        <tr>
+          <td>
+            <label>Display:</label>
+          </td>
+          <td>
+            <input type="checkbox" data-bind="checked: showPass" value="PASS" />
+          </td>
+          <td>
+            <input type="checkbox" data-bind="checked: showFail" value="FAIL" />
+          </td>
+          <td>
+            <input type="checkbox" data-bind="checked: showTimeout" value="TIMEOUT" />
+          </td>
+          <td>
+            <input type="checkbox" data-bind="checked: showError" value="ERROR" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="container" data-bind="visible: fetching">
+      <button class="btn btn-lg btn-warning center-block">
+        <span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span>
+        Loading...
+      </button>
+    </div>
+
+    <table class="results" data-bind="visible: !fetching()">
+      <thead>
+        <tr>
+          <th>Test</th>
+          <th>Status</th>
+          <th>Message</th>
+          <th>Subtest Pass Rate</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: results">
+        <tr data-bind="css: resultClasses">
+          <td data-bind="text: test.url"></td>
+          <td data-bind="text: result"></td>
+          <td data-bind="text: message"></td>
+          <td>
+            <span data-bind="text: totals.PASS"></span>
+            /
+            <span data-bind="text: totals.ALL"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="row pull-right">
+      <ul class="pagination">
+        <li data-bind="css: { disabled: pageIndex() <= 1 }">
+          <a data-bind="click: function () { goToPage(1) }">|&laquo;</a>
+        </li>
+        <li data-bind="css: { disabled: pageIndex() <= 1 }">
+          <a data-bind="click: function () { goToPage(pageIndex() - 1) }">&laquo;</a>
+        </li>
+        <!-- ko foreach: pages -->
+        <li data-bind="css: { active: $data == $parent.pageIndex(), disabled: '&hellip;' == $data }">
+          <a data-bind="text: $data, click: $parent.goToPage.bind($data)"></a>
+        </li>
+        <!-- /ko -->
+        <li data-bind="css: { disabled: pageIndex() >= numPages() }">
+          <a data-bind="click: function () { goToPage(pageIndex() + 1) }">&raquo;</a>
+        </li>
+        <li data-bind="css: { disabled: pageIndex() >= numPages() }">
+          <a data-bind="click: function () { goToPage(numPages()) }">&raquo;|</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

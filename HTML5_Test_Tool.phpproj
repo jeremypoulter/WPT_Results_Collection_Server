@@ -42,6 +42,7 @@
   <ItemGroup>
     <Folder Include="css\" />
     <Folder Include="js\" />
+    <Folder Include="html\" />
     <Folder Include="reference\" />
     <Folder Include="templates\" />
   </ItemGroup>
@@ -52,6 +53,16 @@
     <Content Include="css\bootstrap.css.map" />
     <Content Include="css\bootstrap.min.css" />
     <Content Include="css\bootstrap.min.css.map" />
+    <Content Include="html\dialog-reference-delete.html" />
+    <Content Include="html\dialog-reference-new.html" />
+    <Content Include="html\dialog-report-delete.html" />
+    <Content Include="html\dialog-report-new.html" />
+    <Content Include="html\dialog-session-delete.html" />
+    <Content Include="html\nav.html" />
+    <Content Include="html\tab-about.html" />
+    <Content Include="html\tab-home.html" />
+    <Content Include="html\tab-results.html" />
+    <Content Include="html\tab-validation.html" />
     <Content Include="index.php" />
     <Content Include="js\AboutViewModel.js" />
     <Content Include="js\autobahn.js" />
