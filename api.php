@@ -402,15 +402,40 @@ $app->group('/drm', function() use ($app)
 {
     $app->get('/', function () use ($app)
     {
-        $app->render(200, array(
-            'enabled' => true
-        ));
+        $drm = new DRM();
+        $app->render(200, $drm->info());
     })->name('drm');
-    $app->post('/:id', function () use ($app)
+    $app->post('/', function () use ($app)
     {
-        $app->render(200,array(
-            'sessionId' => ''
-        ));
+        $res = false;
+
+        try
+        {
+            $drm = new DRM();
+            $res = $drm->login($app->request()->params('username'),
+                               $app->request()->params('password'));
+        } catch(Exception $e) {
+            $app->render(500, array(
+                'error' => true,
+                'msg'   => $e->getMessage(),
+            ));
+            return;
+        }
+
+        if($res) {
+            $app->render(200, $drm->info());
+        } else {
+            $app->render(404, array(
+                'error' => true,
+                'msg'   => 'user/password not found',
+            ));
+        }
+    });
+    $app->delete('/', function () use ($app)
+    {
+        $drm = new DRM();
+        $drm->logout();
+        $app->render(200, array());
     });
 });
 $app->group('/about', function() use ($app)

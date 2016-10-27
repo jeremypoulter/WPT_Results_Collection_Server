@@ -1,4 +1,4 @@
-/// <reference path="jquery-1.9.1.js" />
+﻿/// <reference path="jquery-1.9.1.js" />
 /// <reference path="bootstrap.js" />
 /// <reference path="knockout-3.3.0.debug.js" />
 /// <reference path="knockout.mapping-latest.debug.js" />
@@ -51,6 +51,7 @@ function HtmlTestToolViewModel()
     self.resultsViewModel = ko.observable(new ResultsViewModel(self));
     self.validationViewModel = ko.observable(new ValidationViewModel(self, self.resultsViewModel()));
     self.aboutViewModel = ko.observable(new AboutViewModel(self));
+    self.drmViewModel = ko.observable(new DrmViewModel(self));
 
     // Client-side routes    
     var sammy = Sammy(function ()

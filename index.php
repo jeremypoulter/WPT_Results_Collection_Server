@@ -49,6 +49,7 @@ $results_endpoints = $http."://".$server.$port.$path;
     include('html/dialog-report-new.html');
     include('html/dialog-reference-delete.html');
     include('html/dialog-reference-new.html');
+    include('html/dialog-drm-login.html');
 
     ?>
 
@@ -68,6 +69,7 @@ $results_endpoints = $http."://".$server.$port.$path;
     <script src="js/DeleteViewModel.js" charset="UTF-8"></script>
     <script src="js/NewReportViewModel.js" charset="UTF-8"></script>
     <script src="js/NewReferenceViewModel.js" charset="UTF-8"></script>
+    <script src="js/LoginViewModel.js" charset="UTF-8"></script>
     <script src="js/TestReferenceViewModel.js" charset="UTF-8"></script>
     <script src="js/TestResultsViewModel.js" charset="UTF-8"></script>
     <script src="js/TestSessionViewModel.js" charset="UTF-8"></script>
@@ -76,6 +78,7 @@ $results_endpoints = $http."://".$server.$port.$path;
     <script src="js/ValidationViewModel.js" charset="UTF-8"></script>
     <script src="js/ResultsViewModel.js" charset="UTF-8"></script>
     <script src="js/AboutViewModel.js" charset="UTF-8"></script>
+    <script src="js/DrmViewModel.js" charset="UTF-8"></script>
     <script src="js/test_tool_manager.js" charset="UTF-8"></script>
 </body>
 </html>

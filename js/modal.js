@@ -22,7 +22,7 @@ function showModal(options)
             whenUIHiddenThenRemoveUI($ui);
             return deferredModalResult;
         });
-};
+}
 
 function createModalElement(templateName, viewModel)
 {
@@ -49,7 +49,7 @@ function createModalElement(templateName, viewModel)
     );
     // Return the deferred DOM element so callers can wait until it's ready for use.
     return deferredElement;
-};
+}
 
 function addHiddenDivToBody() 
 {
@@ -57,7 +57,7 @@ function addHiddenDivToBody()
     div.style.display = "none";
     document.body.appendChild(div);
     return div;
-};
+}
 
 function addModalHelperToViewModel(viewModel, deferredModalResult, context)
 {
@@ -75,7 +75,7 @@ function addModalHelperToViewModel(viewModel, deferredModalResult, context)
             }
         }
     };
-};
+}
 
 function showTwitterBootstrapModal($ui) {
     // Display the modal UI using Twitter Bootstrap's modal plug-in.
@@ -85,7 +85,7 @@ function showTwitterBootstrapModal($ui) {
         backdrop: "static",
         keyboard: false
     });
-};
+}
 
 function whenModalResultCompleteThenHideUI(deferredModalResult, $ui) {
     // When modal is closed (with or without a result)
@@ -93,7 +93,7 @@ function whenModalResultCompleteThenHideUI(deferredModalResult, $ui) {
     deferredModalResult.always(function () {
         $ui.modal("hide");
     });
-};
+}
 
 function whenUIHiddenThenRemoveUI($ui)
 {
@@ -105,4 +105,4 @@ function whenUIHiddenThenRemoveUI($ui)
         $ui.each(function (index, element) { ko.cleanNode(element); });
         $ui.remove();
     });
-};
+}

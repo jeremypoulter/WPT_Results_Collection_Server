@@ -17,58 +17,54 @@ function NewReferenceViewModel(resultsViewModel, validationViewModel)
     self.selectionMade = ko.pureComputed(function ()
     {
         return self.selectedSessions().length >= self.minSessions() && 
-               self.name() != null &&
-               self.name() != "";
+               self.name() !== null &&
+               self.name() !== "";
     });
 
-    self.referenceList = ko.pureComputed(function () { return validationViewModel.referenceList() });
-    self.referenceListValid = ko.pureComputed(function () { return validationViewModel.referenceListValid() });
+    self.referenceList = ko.pureComputed(function () { return validationViewModel.referenceList(); });
+    self.referenceListValid = ko.pureComputed(function () { return validationViewModel.referenceListValid(); });
 
-    self.sessionList = ko.pureComputed(function () { return resultsViewModel.sessionList() });
-    self.sessionListValid = ko.pureComputed(function () { return resultsViewModel.sessionListValid() });
+    self.sessionList = ko.pureComputed(function () { return resultsViewModel.sessionList(); });
+    self.sessionListValid = ko.pureComputed(function () { return resultsViewModel.sessionListValid(); });
 
-    self.getSessionFromId = function (sessionId)
-    {
+    self.getSessionFromId = function (sessionId) {
         var sessions = self.sessionList();
-        for (var index in sessions)
-        {
+        for (var index in sessions) {
             var session = sessions[index];
-            if (sessionId == session.id()) {
+            if (sessionId === session.id()) {
                 return session;
             }
         }
 
         return null;
-    }
+    };
 
-    self.sessionAlreadySelected = function (sessionId)
-    {
+    self.sessionAlreadySelected = function (sessionId) {
         var sessions = self.selectedSessions();
-        for (var index in sessions)
-        {
+        for (var index in sessions) {
             var session = sessions[index];
-            if (sessionId == session.id()) {
+            if (sessionId === session.id()) {
                 return true;
             }
         }
 
         return false;
-    }
+    };
 
     self.sessionListNamed = ko.computed(function () {
         return ko.utils.arrayFilter(resultsViewModel.sessionList(), function (item) {
-            return item.name() != "" && !self.sessionAlreadySelected(item.id());
+            return item.name() !== "" && !self.sessionAlreadySelected(item.id());
         });
     });
 
     self.addSessionToList = function () {
         self.selectedSessions.push(self.getSessionFromId(self.addSession()));
         self.addSession(false);
-    }
+    };
 
     self.removeSessionFromList = function (session) {
         self.selectedSessions.remove(session);
-    }
+    };
 
     self.complete = function () {
         this.modal.close(true);

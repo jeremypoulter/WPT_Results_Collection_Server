@@ -1,61 +1,86 @@
-﻿<div data-bind="visible: isAbout, with: aboutViewModel">
-	<h3>Server Information</h3>
-	<table class="table table-hover table-condensed">
-		<tr>
-			<td><b>HTML5 Test Suite</b></td>
-			<td>Version</td>
-			<td data-bind="text: version"></td>
-		</tr>
-		<tr>
-			<td><b>Server</b></td>
-			<td>OS</td>
-			<td>
-				<span data-bind="text: system"></span>
-				<span data-bind="text: kernel"></span>
-			</td>
-		</tr>
-		<tr>
-			<td class="subinfo"></td>
-			<td>Host</td>
-			<td>
-				<span data-bind="text: host"></span>
-				<span data-bind="text: hostbyaddress"></span>
-				(<span data-bind="text: ip"></span>)
-			</td>
-		</tr>
-		<tr>
-			<td class="subinfo"></td>
-			<td>Date</td>
-			<td data-bind="text: date"></td>
-		</tr>
-		<tr>
-			<td class="subinfo"></td>
-			<td>Uptime</td>
-			<td data-bind="text: uptime"></td>
-		</tr>
-		<tr>
-			<td><b>HTTP</b></td>
-			<td>Server</td>
-			<td>
-				<span data-bind="text: http_server"></span>
-				<span data-bind="text: http_proto"></span>
-				<span data-bind="text: http_mode"></span>
-				<span data-bind="text: http_port"></span>
-			</td>
-		</tr>
-		<tr>
-			<td><b>PHP</b></td>
-			<td>Version</td>
-			<td>
-				<span data-bind="text: php"></span>
-				(<span data-bind="text: zend"></span>)
-			</td>
-		</tr>
-		<tr>
-			<td class="subinfo"></td>
-			<td>Modules</td>
-			<td data-bind="text: php_module_list"></td>
-		</tr>
-	</table>
+﻿<div data-bind="visible: isAbout">
+	<div data-bind="with: drmViewModel">
+		<h3>DRM</h3>
+		<table class="table table-hover table-condensed">
+			<tr>
+				<td><b>DRM</b></td>
+				<td>User</td>
+				<td data-bind="text: userId"></td>
+			</tr>
+			<tr>
+				<td class="subinfo"></td>
+				<td>Session ID</td>
+				<td data-bind="text: sessionId"></td>
+			</tr>
+			<tr>
+				<td class="subinfo"></td>
+				<td></td>
+				<td class="text-right">
+					<button class="btn btn-info" data-bind="click: login, disable: fetching">Login</button>
+					<button class="btn btn-info" data-bind="click: logout, disable: fetching, visible: false !== sessionId()">Logout</button>
+				</td>
+			</tr>
+		</table>
+	</div>
 
+	<div data-bind="with: aboutViewModel">
+		<h3>Server Information</h3>
+		<table class="table table-hover table-condensed">
+			<tr>
+				<td><b>HTML5 Test Suite</b></td>
+				<td>Version</td>
+				<td data-bind="text: version"></td>
+			</tr>
+			<tr>
+				<td><b>Server</b></td>
+				<td>OS</td>
+				<td>
+					<span data-bind="text: system"></span>
+					<span data-bind="text: kernel"></span>
+				</td>
+			</tr>
+			<tr>
+				<td class="subinfo"></td>
+				<td>Host</td>
+				<td>
+					<span data-bind="text: host"></span>
+					<span data-bind="text: hostbyaddress"></span>
+					(<span data-bind="text: ip"></span>)
+				</td>
+			</tr>
+			<tr>
+				<td class="subinfo"></td>
+				<td>Date</td>
+				<td data-bind="text: date"></td>
+			</tr>
+			<tr>
+				<td class="subinfo"></td>
+				<td>Uptime</td>
+				<td data-bind="text: uptime"></td>
+			</tr>
+			<tr>
+				<td><b>HTTP</b></td>
+				<td>Server</td>
+				<td>
+					<span data-bind="text: http_server"></span>
+					<span data-bind="text: http_proto"></span>
+					<span data-bind="text: http_mode"></span>
+					<span data-bind="text: http_port"></span>
+				</td>
+			</tr>
+			<tr>
+				<td><b>PHP</b></td>
+				<td>Version</td>
+				<td>
+					<span data-bind="text: php"></span>
+					(<span data-bind="text: zend"></span>)
+				</td>
+			</tr>
+			<tr>
+				<td class="subinfo"></td>
+				<td>Modules</td>
+				<td data-bind="text: php_module_list"></td>
+			</tr>
+		</table>
+	</div>
 </div>

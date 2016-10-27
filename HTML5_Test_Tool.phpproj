@@ -56,6 +56,7 @@
     <Content Include="html\dialog-reference-delete.html" />
     <Content Include="html\dialog-reference-new.html" />
     <Content Include="html\dialog-report-delete.html" />
+    <Content Include="html\dialog-drm-login.html" />
     <Content Include="html\dialog-report-new.html" />
     <Content Include="html\dialog-session-delete.html" />
     <Content Include="html\nav.html" />
@@ -64,6 +65,8 @@
     <Content Include="html\tab-results.html" />
     <Content Include="html\tab-validation.html" />
     <Content Include="index.php" />
+    <Content Include="js\LoginViewModel.js" />
+    <Content Include="js\DrmViewModel.js" />
     <Content Include="js\AboutViewModel.js" />
     <Content Include="js\autobahn.js" />
     <Content Include="js\autobahn.min.js" />

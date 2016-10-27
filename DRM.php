@@ -15,21 +15,65 @@ class DRM
 
     private $lock = false;
 
-    public function __construct($id)
+    public function __construct()
     {
         $this->loadState();
     }
 
-    public function login($user, $password)
+    public function login($username, $password)
     {
-        $client = new SoapClient("https://certification.dlna.org/services/drm.asmx?wsdl");
-        $result = $client->DrmLogIn($this->userId, $password);
-        return $result;
+        if(false != $username && "" != $username &&
+           false != $password && "" != $password)
+        {
+            $client = new SoapClient("https://certification.dlna.org/services/drm.asmx?wsdl");
+            $result = $client->DrmLogIn(array(
+                'emailAddress' => $username,
+                'pword' => $password));
+            if(isset($result->DrmLogInResult))
+            {
+                $drmInfo = json_decode($result->DrmLogInResult);
+                if(isset($drmInfo->userID) && '' != $drmInfo->userID &&
+                   isset($drmInfo->sessionID) && '' != $drmInfo->sessionID)
+                {
+                    $this->userId = $drmInfo->userID;
+                    $this->sessionId = $drmInfo->sessionID;
+                    $this->lock();
+                    $this->saveState();
+                    $this->unlock();
+
+                    return true;
+                }
+            }
+        }
+
+        $this->logout();
+        return false;
+    }
+
+    public function logout()
+    {
+        $this->lock();
+
+        if(file_exists(DRM_SESSIONS)) {
+            unlink(DRM_SESSIONS);
+        }
+        $this->userId = false;
+        $this->sessionId = false;
+
+        $this->unlock();
+    }
+
+    public function info()
+    {
+        return array(
+            'userId' => $this->userId,
+            'sessionId' => $this->sessionId
+        );
     }
 
     private function loadState()
     {
-        if(file_exists)
+        if(file_exists(DRM_SESSIONS))
         {
             $drm = json_decode(file_get_contents(DRM_SESSIONS), true);
             if(array_key_exists('userId', $drm)) {
@@ -43,11 +87,7 @@ class DRM
 
     private function saveState()
     {
-        $status = array(
-            'userId' => $this->userId,
-            'sessionId' => $this->sessionId
-        );
-        file_put_contents(DRM_SESSIONS, json_encode($status));
+        file_put_contents(DRM_SESSIONS, json_encode($this->info()));
     }
 
     private function lock()
