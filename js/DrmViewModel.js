@@ -6,7 +6,9 @@ function DrmViewModel(appViewModel) {
     var self = this;
     ko.mapping.fromJS({
         'userId': false,
-        'sessionId': false
+        'sessionId': false,
+        'message': false,
+        'profile': false
     }, {}, self);
 
     self.fetching = ko.observable(false);
@@ -24,7 +26,7 @@ function DrmViewModel(appViewModel) {
 
     self.login = function () {
         showModal({
-            viewModel: new LoginViewModel('DrmLogin'),
+            viewModel: new LoginViewModel('DrmLogin', self.userId()),
             context: this // Set context so we don't need to bind the callback function
         }).then(function (result) {
             self.fetching(true);

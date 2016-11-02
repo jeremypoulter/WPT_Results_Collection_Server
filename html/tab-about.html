@@ -14,9 +14,15 @@
 			</tr>
 			<tr>
 				<td class="subinfo"></td>
+				<td>Status</td>
+				<td data-bind="text: message"></td>
+			</tr>
+			<tr>
+				<td class="subinfo"></td>
 				<td></td>
 				<td class="text-right">
-					<button class="btn btn-info" data-bind="click: login, disable: fetching">Login</button>
+					<button class="btn btn-info" data-bind="click: login, disable: fetching, visible: false === sessionId()">Login</button>
+					<button class="btn btn-info" data-bind="click: login, disable: fetching, visible: false !== sessionId()">Renew</button>
 					<button class="btn btn-info" data-bind="click: logout, disable: fetching, visible: false !== sessionId()">Logout</button>
 				</td>
 			</tr>

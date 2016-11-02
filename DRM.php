@@ -14,10 +14,12 @@ class DRM
     public $sessionId = false;
 
     private $lock = false;
+    private $client = false;
 
     public function __construct()
     {
         $this->loadState();
+        $this->client = new SoapClient("https://certification.dlna.org/services/drm.asmx?wsdl");
     }
 
     public function login($username, $password)
@@ -25,8 +27,7 @@ class DRM
         if(false != $username && "" != $username &&
            false != $password && "" != $password)
         {
-            $client = new SoapClient("https://certification.dlna.org/services/drm.asmx?wsdl");
-            $result = $client->DrmLogIn(array(
+            $result = $this->client->DrmLogIn(array(
                 'emailAddress' => $username,
                 'pword' => $password));
             if(isset($result->DrmLogInResult))
@@ -65,10 +66,23 @@ class DRM
 
     public function info()
     {
-        return array(
+        $result = $this->client->DRMSessionCheck(array(
+            'userID' => $this->userId,
+            'sessionID' => $this->sessionId));
+
+        $info = array(
             'userId' => $this->userId,
             'sessionId' => $this->sessionId
         );
+
+        if(isset($result->DRMSessionCheckResult))
+        {
+            $sessionInfo = json_decode($result->DRMSessionCheckResult);
+            $info['message'] = isset($sessionInfo->message) ? $sessionInfo->message : 'error';
+            $info['profile'] = isset($sessionInfo->profile) ? $sessionInfo->message : false;
+        }
+
+        return $info;
     }
 
     private function loadState()

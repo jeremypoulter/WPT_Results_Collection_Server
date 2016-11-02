@@ -1,13 +1,13 @@
 ﻿/// <reference path="knockout-3.3.0.debug.js" />
 /// <reference path="knockout.mapping-latest.debug.js" />
 
-function LoginViewModel(template)
+function LoginViewModel(template, user)
 {
     // Data
     var self = this;
     self.template = template;
 
-    self.username = ko.observable("");
+    self.username = ko.observable(false !== user ? user : "");
     self.password = ko.observable("");
     self.valid = ko.pureComputed(function () {
         return self.username().length > 0 && self.password().length > 0;
